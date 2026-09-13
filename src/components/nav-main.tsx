@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -15,22 +15,22 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
-import { ChevronRightIcon } from "lucide-react"
+} from "@/components/ui/sidebar";
+import { ChevronRightIcon } from "lucide-react";
 
 export function NavMain({
   items,
 }: {
   items: {
-    title: string
-    url: string
-    icon: React.ReactNode
-    isActive?: boolean
+    title: string;
+    url: string;
+    icon: React.ReactNode;
+    isActive?: boolean;
     items?: {
-      title: string
-      url: string
-    }[]
-  }[]
+      title: string;
+      url: string;
+    }[];
+  }[];
 }) {
   return (
     <SidebarGroup>
@@ -44,6 +44,7 @@ export function NavMain({
           >
             <SidebarMenuButton
               tooltip={item.title}
+              nativeButton={false}
               render={<a href={item.url} />}
             >
               {item.icon}
@@ -56,15 +57,17 @@ export function NavMain({
                     <SidebarMenuAction className="aria-expanded:rotate-90" />
                   }
                 >
-                  <ChevronRightIcon
-                  />
+                  <ChevronRightIcon />
                   <span className="sr-only">Toggle</span>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton render={<a href={subItem.url} />}>
+                        <SidebarMenuSubButton
+                          nativeButton={false}
+                          render={<a href={subItem.url} />}
+                        >
                           <span>{subItem.title}</span>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
@@ -77,5 +80,5 @@ export function NavMain({
         ))}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }

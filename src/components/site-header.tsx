@@ -1,25 +1,26 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { Logo } from "@/components/logo"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { UserMenu, type HeaderUser } from "@/components/user-menu";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
-import { MenuIcon, SearchIcon } from "lucide-react"
+} from "@/components/ui/sheet";
+import { MenuIcon, SearchIcon } from "lucide-react";
 
 const navigation = [
   { title: "Templates", href: "#templates" },
   { title: "UI Kits", href: "#categories" },
   { title: "Source Code", href: "#featured" },
   { title: "Pricing", href: "#pricing" },
-]
+];
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
@@ -35,14 +36,14 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         </a>
       ))}
     </>
-  )
+  );
 }
 
-export function SiteHeader() {
-  const [open, setOpen] = React.useState(false)
+export function SiteHeader({ user }: { user?: HeaderUser | null }) {
+  const [open, setOpen] = React.useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-backdrop-filter:bg-background/60">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-8">
           <Logo />
@@ -60,19 +61,48 @@ export function SiteHeader() {
             <SearchIcon />
           </Button>
           <ThemeToggle />
-          <Button variant="ghost" size="sm" className="hidden md:inline-flex">
-            Sign in
-          </Button>
-          <Button size="sm" className="hidden md:inline-flex">
-            Get started
-          </Button>
+
+          {user ? (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden md:inline-flex"
+                nativeButton={false}
+                render={<a href="/account" />}
+              >
+                Account
+              </Button>
+              <UserMenu user={user} />
+            </>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden md:inline-flex"
+                nativeButton={false}
+                render={<a href="/auth/login" />}
+              >
+                Sign in
+              </Button>
+              <Button
+                size="sm"
+                className="hidden md:inline-flex"
+                nativeButton={false}
+                render={<a href="/auth/register" />}
+              >
+                Get started
+              </Button>
+            </>
+          )}
+
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
+              nativeButton={true}
               render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden"
+                <button
+                  className="md:hidden inline-flex items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 size-8 hover:bg-muted hover:text-foreground"
                   aria-label="Open menu"
                 />
               }
@@ -83,25 +113,59 @@ export function SiteHeader() {
             <SheetContent side="right" className="w-72">
               <SheetHeader className="border-b">
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
-                <Logo />
+                <div className="flex items-center justify-between">
+                  <Logo />
+                  {user ? <UserMenu user={user} /> : <ThemeToggle />}
+                </div>
               </SheetHeader>
               <nav className="flex flex-col gap-4 px-4 py-4">
                 <NavLinks onNavigate={() => setOpen(false)} />
               </nav>
               <div className="mt-auto flex flex-col gap-2 border-t p-4">
-                <Button variant="outline">Sign in</Button>
-                <Button>Get started</Button>
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-xs text-muted-foreground">
-                    Appearance
-                  </span>
-                  <ThemeToggle />
-                </div>
+                {user ? (
+                  <>
+                    <Button
+                      nativeButton={false}
+                      render={<a href="/account" />}
+                      onClick={() => setOpen(false)}
+                    >
+                      Go to account
+                    </Button>
+                    {user.role === "ADMIN" ? (
+                      <Button
+                        variant="outline"
+                        nativeButton={false}
+                        render={<a href="/admin" />}
+                        onClick={() => setOpen(false)}
+                      >
+                        Admin area
+                      </Button>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      nativeButton={false}
+                      render={<a href="/auth/login" />}
+                      onClick={() => setOpen(false)}
+                    >
+                      Sign in
+                    </Button>
+                    <Button
+                      nativeButton={false}
+                      render={<a href="/auth/register" />}
+                      onClick={() => setOpen(false)}
+                    >
+                      Get started
+                    </Button>
+                  </>
+                )}
               </div>
             </SheetContent>
           </Sheet>
         </div>
       </div>
     </header>
-  )
+  );
 }
