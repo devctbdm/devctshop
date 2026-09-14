@@ -5,6 +5,7 @@ import * as React from "react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu, type HeaderUser } from "@/components/user-menu";
+import { CartIndicator } from "@/components/cart-indicator";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -61,6 +62,7 @@ export function SiteHeader({ user }: { user?: HeaderUser | null }) {
             <SearchIcon />
           </Button>
           <ThemeToggle />
+          <CartIndicator />
 
           {user ? (
             <>

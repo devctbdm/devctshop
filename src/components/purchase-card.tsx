@@ -1,30 +1,30 @@
 "use client"
 
-import * as React from "react"
-
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { AddToCartButton } from "@/components/add-to-cart-button"
+import { useRouter } from "next/navigation"
 import {
   CheckIcon,
   DownloadIcon,
   ShieldCheckIcon,
-  ShoppingCartIcon,
   ZapIcon,
 } from "lucide-react"
+import { useCartStore } from "@/stores/cart-store"
 import { discountPercent, formatPrice, type Product } from "@/lib/products"
 
 export function PurchaseCard({ product }: { product: Product }) {
-  const [cart, setCart] = React.useState(false)
+  const router = useRouter()
+  const addItem = useCartStore((state) => state.addItem)
   const discount = discountPercent(product)
   const onSale = product.salePrice != null
   const price = product.salePrice ?? product.price
 
-  function add() {
-    setCart(true)
-  }
   function buy() {
-    setCart(true)
+    addItem({ slug: product.slug, name: product.name, price: product.price, salePrice: product.salePrice })
+    const items = encodeURIComponent(JSON.stringify([{ slug: product.slug }]))
+    router.push(`/checkout?items=${items}`)
   }
 
   return (
@@ -55,20 +55,11 @@ export function PurchaseCard({ product }: { product: Product }) {
           <ZapIcon className="size-4" data-icon="inline-start" />
           Buy now
         </Button>
-        <Button
+        <AddToCartButton
+          item={{ slug: product.slug, name: product.name, price: product.price, salePrice: product.salePrice }}
           size="lg"
-          variant="outline"
-          onClick={add}
           className="w-full"
-          aria-pressed={cart}
-        >
-          {cart ? (
-            <CheckIcon className="size-4" data-icon="inline-start" />
-          ) : (
-            <ShoppingCartIcon className="size-4" data-icon="inline-start" />
-          )}
-          {cart ? "Added to cart" : "Add to cart"}
-        </Button>
+        />
       </div>
 
       <Separator className="my-5" />
