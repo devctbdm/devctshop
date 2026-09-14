@@ -348,6 +348,8 @@ export const downloads = pgTable(
     orderId: uuid("order_id")
       .notNull()
       .references(() => orders.id, { onDelete: "cascade" }),
+    productSlug: varchar("product_slug", { length: 180 }).notNull(),
+    productVersion: varchar("product_version", { length: 30 }).notNull(),
     productFileId: uuid("product_file_id").references(() => productFiles.id, {
       onDelete: "set null",
     }),
@@ -356,6 +358,7 @@ export const downloads = pgTable(
     }),
     ipAddr: cidr("ip_addr"),
     userAgent: text("user_agent"),
+    downloadCount: integer("download_count").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -364,6 +367,8 @@ export const downloads = pgTable(
     index("downloads_order_id_idx").on(table.orderId),
     index("downloads_user_id_idx").on(table.userId),
     index("downloads_product_file_id_idx").on(table.productFileId),
+    index("downloads_product_slug_idx").on(table.productSlug),
+    uniqueIndex("downloads_user_order_product_uq").on(table.userId, table.orderId, table.productSlug),
     index("downloads_created_at_idx").on(table.createdAt),
   ],
 );
@@ -402,15 +407,14 @@ export const wishlist = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    productId: uuid("product_id")
-      .notNull()
-      .references(() => products.id, { onDelete: "cascade" }),
+    productId: uuid("product_id").references(() => products.id, { onDelete: "cascade" }),
+    productSlug: varchar("product_slug", { length: 180 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (table) => [
-    primaryKey({ columns: [table.userId, table.productId] }),
+    primaryKey({ columns: [table.userId, table.productSlug] }),
     index("wishlist_product_id_idx").on(table.productId),
   ],
 );

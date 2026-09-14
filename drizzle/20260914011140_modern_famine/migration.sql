@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "downloads_user_order_product_uq" ON "downloads" ("user_id","order_id","product_slug");

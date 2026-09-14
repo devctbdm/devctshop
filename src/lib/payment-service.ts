@@ -5,6 +5,7 @@ import { and, eq } from "drizzle-orm"
 import { db } from "@/db"
 import { downloads, orderItems, orders, payments } from "@/db/schema"
 import { validateSslcommerzPayment } from "@/lib/sslcommerz"
+import { getProductBySlug } from "@/lib/products"
 
 type GatewayData = Record<string, string | undefined>
 
@@ -132,8 +133,16 @@ export async function processSslcommerzPayment(data: GatewayData) {
     if (order) {
       await tx
         .insert(downloads)
-        .values(items.map(() => ({ orderId: order.id, userId: order.userId, productFileId: null })))
-        .onConflictDoNothing()
+        .values(items.map((item) => ({
+          orderId: order.id,
+          userId: order.userId,
+          productSlug: item.productSlug ?? "",
+          productVersion: getProductBySlug(item.productSlug ?? "")?.version ?? "1.0.0",
+          productFileId: null,
+        })))
+        .onConflictDoNothing({
+          target: [downloads.userId, downloads.orderId, downloads.productSlug],
+        })
     }
 
     return { order: order ?? locked.order, payment, alreadyProcessed: false }
