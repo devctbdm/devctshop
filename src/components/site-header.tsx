@@ -16,10 +16,10 @@ import {
 import { MenuIcon, SearchIcon } from "lucide-react";
 
 const navigation = [
-  { title: "Templates", href: "#templates" },
-  { title: "UI Kits", href: "#categories" },
-  { title: "Source Code", href: "#featured" },
-  { title: "Pricing", href: "#pricing" },
+  { title: "Products", href: "/products" },
+  { title: "Categories", href: "/categories" },
+  { title: "Templates", href: "/categories/nextjs" },
+  { title: "UI Kits", href: "/categories/ui-kits" },
 ];
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {

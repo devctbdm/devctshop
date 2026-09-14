@@ -7,10 +7,10 @@ const footerLinks = [
   {
     title: "Marketplace",
     links: [
-      { title: "Templates", href: "#templates" },
-      { title: "UI Kits", href: "#categories" },
-      { title: "Source Code", href: "#featured" },
-      { title: "Pricing", href: "#pricing" },
+      { title: "All products", href: "/products" },
+      { title: "Categories", href: "/categories" },
+      { title: "Next.js Templates", href: "/categories/nextjs" },
+      { title: "UI Kits", href: "/categories/ui-kits" },
     ],
   },
   {

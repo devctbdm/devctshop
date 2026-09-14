@@ -1,3 +1,4 @@
+import Link from "next/link"
 import {
   ArrowRightIcon,
   BadgeCheckIcon,
@@ -17,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { ProductCard } from "@/components/product-card"
-import { categories, featuredProducts } from "@/lib/products"
+import { categories, getFeaturedProducts } from "@/lib/products"
 
 const stats = [
   { value: "480+", label: "Products" },
@@ -70,12 +71,21 @@ function Hero() {
             dashboards, and UI kits. Built in the open, updated for life.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button size="lg" className="w-full sm:w-auto">
+            <Button
+              size="lg"
+              className="w-full sm:w-auto"
+              render={<Link href="/products" />}
+            >
               Browse products
               <ArrowRightIcon className="size-4" data-icon="inline-end" />
             </Button>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
-              View pricing
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto"
+              render={<Link href="/categories" />}
+            >
+              Browse categories
             </Button>
           </div>
           <div className="mt-14 grid grid-cols-2 gap-6 border-t pt-10 sm:grid-cols-4">
@@ -112,8 +122,8 @@ function Categories() {
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => (
             <a
-              key={category.name}
-              href="#featured"
+              key={category.slug}
+              href={`/categories/${category.slug}`}
               className="group flex items-start gap-4 rounded-xl border bg-card p-4 shadow-2xs transition-all hover:border-foreground/20 hover:shadow-md dark:hover:border-white/20"
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
@@ -147,14 +157,18 @@ function FeaturedProducts() {
               production.
             </p>
           </div>
-          <Button variant="outline" className="w-fit shrink-0">
+          <Button
+            variant="outline"
+            className="w-fit shrink-0"
+            render={<Link href="/products" />}
+          >
             View all products
             <ArrowRightIcon className="size-4" data-icon="inline-end" />
           </Button>
         </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.name} product={product} />
+          {getFeaturedProducts(4).map((product) => (
+            <ProductCard key={product.slug} product={product} />
           ))}
         </div>
       </div>
@@ -207,11 +221,20 @@ function CtaBanner() {
             the right starting point for your next project.
           </p>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-            <Button size="lg" className="w-full sm:w-auto">
+            <Button
+              size="lg"
+              className="w-full sm:w-auto"
+              render={<Link href="/products" />}
+            >
               Browse products
             </Button>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
-              Talk to support
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto"
+              render={<Link href="/categories" />}
+            >
+              Browse categories
             </Button>
           </div>
           <ul className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">

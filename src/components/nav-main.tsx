@@ -44,7 +44,6 @@ export function NavMain({
           >
             <SidebarMenuButton
               tooltip={item.title}
-              nativeButton={false}
               render={<a href={item.url} />}
             >
               {item.icon}
@@ -64,10 +63,7 @@ export function NavMain({
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton
-                          nativeButton={false}
-                          render={<a href={subItem.url} />}
-                        >
+                        <SidebarMenuSubButton render={<a href={subItem.url} />}>
                           <span>{subItem.title}</span>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
