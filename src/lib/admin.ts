@@ -2,7 +2,7 @@ import "server-only"
 
 import { count, desc, eq, ilike, sql } from "drizzle-orm"
 import { db } from "@/db"
-import { downloads, orders, payments, reviews, users } from "@/db/schema"
+import { categories, downloads, orderItems, orders, payments, products, reviews, users } from "@/db/schema"
 
 export async function getAdminMetrics() {
   const [[revenue], [orderCount], [userCount], [downloadCount], [reviewCount]] = await Promise.all([
@@ -33,4 +33,30 @@ export async function getAdminDownloads(search?: string) {
 
 export async function getAdminReviews(search?: string) {
   return db.select({ review: reviews, email: users.email }).from(reviews).innerJoin(users, eq(reviews.userId, users.id)).where(search ? ilike(reviews.title, `%${search}%`) : undefined).orderBy(desc(reviews.createdAt)).limit(100)
+}
+
+export async function getAdminProducts(search?: string) {
+  return db.select({ product: products, categoryName: categories.name }).from(products).innerJoin(categories, eq(products.categoryId, categories.id)).where(search ? ilike(products.name, `%${search}%`) : undefined).orderBy(desc(products.createdAt)).limit(200)
+}
+
+export async function getAdminProduct(id: string) {
+  const [row] = await db.select().from(products).where(eq(products.id, id)).limit(1)
+  return row ?? null
+}
+
+export async function getAdminCategories() {
+  return db.select().from(categories).orderBy(categories.position, categories.name)
+}
+
+export async function getAdminCategory(id: string) {
+  const [row] = await db.select().from(categories).where(eq(categories.id, id)).limit(1)
+  return row ?? null
+}
+
+export async function getAdminOrder(orderNumber: string) {
+  const [row] = await db.select({ order: orders, payment: payments }).from(orders).leftJoin(payments, eq(payments.orderId, orders.id)).where(eq(orders.orderNumber, orderNumber)).limit(1)
+  if (!row) return null
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, row.order.id))
+  const customer = row.order.userId ? (await db.select().from(users).where(eq(users.id, row.order.userId)).limit(1))[0] : null
+  return { ...row, items, customer: customer ?? null }
 }

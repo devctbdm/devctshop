@@ -180,8 +180,13 @@ export const products = pgTable(
     thumbnailUrl: text("thumbnail_url"),
     demoUrl: text("demo_url"),
     priceCents: integer("price_cents").notNull(),
+    salePriceCents: integer("sale_price_cents"),
     currency: char("currency", { length: 3 }).notNull().default("USD"),
     version: varchar("version", { length: 30 }).notNull().default("1.0.0"),
+    imageUrls: text("image_urls").array().notNull().default(sql`'{}'`),
+    features: text("features").array().notNull().default(sql`'{}'`),
+    requirements: text("requirements").array().notNull().default(sql`'{}'`),
+    license: varchar("license", { length: 80 }).notNull().default("Commercial License"),
     tags: text("tags")
       .array()
       .notNull()
