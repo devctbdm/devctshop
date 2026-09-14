@@ -1,7 +1,7 @@
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { requireAdmin } from "@/lib/auth/session"
 
-export const metadata = { title: "Admin" }
+export const metadata = { title: "Admin", robots: { index: false, follow: false } }
 
 export default async function AdminLayout({
   children,

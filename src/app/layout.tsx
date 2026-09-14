@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://devct.shop"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://devct.shop"),
   title: {
     default: "Devct Shop — Premium templates, UI kits & source code",
     template: "%s — Devct Shop",

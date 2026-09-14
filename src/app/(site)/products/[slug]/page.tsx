@@ -184,6 +184,14 @@ export async function generateMetadata({ params }: ProductPageProps) {
   return {
     title: `${product.name} — Devct Shop`,
     description: product.tagline,
+    alternates: { canonical: `/products/${product.slug}` },
+    openGraph: {
+      title: product.name,
+      description: product.tagline,
+      type: "website",
+      url: `/products/${product.slug}`,
+      siteName: "Devct Shop",
+    },
   }
 }
 

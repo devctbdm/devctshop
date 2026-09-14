@@ -3,6 +3,7 @@ import { CartPageContent } from "@/components/cart-page-content"
 export const metadata = {
   title: "Cart — Devct Shop",
   description: "Review your digital products before checkout.",
+  robots: { index: false, follow: false },
 }
 
 export default function CartPage() {

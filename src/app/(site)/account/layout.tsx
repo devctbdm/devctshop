@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth/session"
 import { CustomerNav } from "@/components/customer-nav"
 
-export const metadata = { title: "Account" }
+export const metadata = { title: "Account", robots: { index: false, follow: false } }
 
 export default async function AccountLayout({
   children,

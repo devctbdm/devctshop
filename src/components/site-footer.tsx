@@ -16,19 +16,19 @@ const footerLinks = [
   {
     title: "Company",
     links: [
-      { title: "About", href: "#" },
-      { title: "Blog", href: "#" },
-      { title: "Careers", href: "#" },
-      { title: "Contact", href: "#" },
+              { title: "About", href: "/" },
+      { title: "Blog", href: "/" },
+      { title: "Careers", href: "/" },
+      { title: "Contact", href: "mailto:hello@devct.shop" },
     ],
   },
   {
     title: "Resources",
     links: [
-      { title: "Documentation", href: "#" },
-      { title: "Support", href: "#" },
-      { title: "Licenses", href: "#" },
-      { title: "Terms", href: "#" },
+      { title: "Documentation", href: "/" },
+      { title: "Support", href: "mailto:support@devct.shop" },
+      { title: "Licenses", href: "/" },
+      { title: "Terms", href: "/" },
     ],
   },
 ]
@@ -69,21 +69,21 @@ export function SiteFooter() {
           </p>
           <div className="flex items-center gap-1">
             <a
-              href="#"
+              href="https://github.com"
               className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               aria-label="Open source"
             >
               <Code2Icon className="size-4" />
             </a>
             <a
-              href="#"
+              href="mailto:hello@devct.shop"
               className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               aria-label="Community"
             >
               <MessageCircleIcon className="size-4" />
             </a>
             <a
-              href="#"
+              href="https://devct.shop"
               className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               aria-label="Website"
             >

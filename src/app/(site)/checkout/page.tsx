@@ -13,6 +13,7 @@ function first(value: string | string[] | undefined) {
 export const metadata = {
   title: "Checkout — Devct Shop",
   description: "Complete your digital product order.",
+  robots: { index: false, follow: false },
 }
 
 export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
