@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import { ArrowLeftIcon, ArrowRightIcon, CheckCircle2Icon, LockKeyholeIcon, TagIcon } from "lucide-react"
 
 import { ProductCover } from "@/components/product-cover"
@@ -29,7 +28,6 @@ export function CheckoutContent({
   initialQuote: Quote
   orderNumber?: string
 }) {
-  const router = useRouter()
   const [couponCode, setCouponCode] = React.useState(initialQuote.couponCode ?? "")
   const [quote, setQuote] = React.useState(initialQuote)
   const [loading, setLoading] = React.useState(false)
@@ -54,18 +52,19 @@ export function CheckoutContent({
     }
   }
 
-  async function createOrder() {
+  async function startPayment() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch("/api/orders/pending", {
+      const response = await fetch("/api/payments/sslcommerz/initiate", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ items: items.map((item) => ({ slug: item.slug })), couponCode }),
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error ?? "Unable to create your order.")
-      router.push(`/checkout?order=${encodeURIComponent(result.orderNumber)}`)
+      if (!result.redirectUrl) throw new Error("Payment gateway did not return a redirect URL.")
+      window.location.href = result.redirectUrl
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to create your order.")
       setLoading(false)
@@ -126,8 +125,8 @@ export function CheckoutContent({
         </div>
         {quote.couponError ? <p className="mt-2 text-xs text-destructive">{quote.couponError === "invalid_coupon" ? "That coupon code is not valid." : quote.couponError === "coupon_not_applicable" ? "This coupon does not apply to this order." : "This coupon has expired or is unavailable."}</p> : null}
         {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
-        <Button className="mt-5 w-full" size="lg" onClick={createOrder} disabled={loading || !visibleItems.length}>
-          <LockKeyholeIcon className="size-4" /> {loading ? "Preparing…" : "Create pending order"} <ArrowRightIcon className="size-4" />
+        <Button className="mt-5 w-full" size="lg" onClick={startPayment} disabled={loading || !visibleItems.length}>
+          <LockKeyholeIcon className="size-4" /> {loading ? "Connecting…" : "Pay securely"} <ArrowRightIcon className="size-4" />
         </Button>
         <p className="mt-3 text-center text-xs text-muted-foreground">Secure order creation. Payment will be added later.</p>
       </aside>

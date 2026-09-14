@@ -318,6 +318,9 @@ export const payments = pgTable(
     gateway: paymentMethod("gateway").notNull().default("sslcommerz"),
     status: paymentStatus("status").notNull().default("pending"),
     transactionId: varchar("transaction_id", { length: 100 }).unique(),
+    validationId: varchar("validation_id", { length: 100 }).unique(),
+    bankTransactionId: varchar("bank_transaction_id", { length: 100 }),
+    sessionKey: varchar("session_key", { length: 100 }),
     amountCents: integer("amount_cents").notNull(),
     currency: char("currency", { length: 3 }).notNull().default("USD"),
     paidAt: timestamp("paid_at", { withTimezone: true }),
@@ -331,6 +334,7 @@ export const payments = pgTable(
   },
   (table) => [
     index("payments_order_id_idx").on(table.orderId),
+    uniqueIndex("payments_order_id_uq").on(table.orderId),
     index("payments_user_id_idx").on(table.userId),
     index("payments_status_idx").on(table.status),
     index("payments_created_at_idx").on(table.createdAt),
