@@ -1,16 +1,149 @@
-import Link from "next/link"
-import { PlusIcon } from "lucide-react"
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
 
-import { AdminHeader } from "@/components/admin/admin-header"
-import { ConfirmAction } from "@/components/admin/confirm-action"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { getAdminProducts } from "@/lib/admin"
-import { deleteProductAction, toggleProductAction } from "@/lib/admin-actions"
-import { formatPrice } from "@/lib/products"
+import { AdminHeader } from "@/components/admin/admin-header";
+import { ConfirmAction } from "@/components/admin/confirm-action";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { getAdminProducts } from "@/lib/admin";
+import { deleteProductAction, toggleProductAction } from "@/lib/admin-actions";
+import { formatPrice } from "@/lib/products";
 
-export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams
-  const rows = await getAdminProducts(q)
-  return <div className="mx-auto max-w-7xl"><AdminHeader title="Products" description="Create, publish, and maintain your digital product catalog." search={q} /><div className="mb-5 flex justify-end"><Button render={<Link href="/admin/products/new" />}><PlusIcon className="size-4" />Add product</Button></div><div className="rounded-xl border bg-card"><Table><TableHeader><TableRow><TableHead>Product</TableHead><TableHead>Category</TableHead><TableHead>Price</TableHead><TableHead>State</TableHead><TableHead>Featured</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader><TableBody>{rows.map(({ product, categoryName }) => <TableRow key={product.id}><TableCell><Link href={`/admin/products/${product.id}`} className="font-medium hover:underline">{product.name}</Link><p className="text-xs text-muted-foreground">v{product.version}</p></TableCell><TableCell>{categoryName}</TableCell><TableCell>{product.salePriceCents ? <><span className="font-medium">{formatPrice(product.salePriceCents / 100)}</span><span className="ml-2 text-xs text-muted-foreground line-through">{formatPrice(product.priceCents / 100)}</span></> : formatPrice(product.priceCents / 100)}</TableCell><TableCell><form action={toggleProductAction}><input type="hidden" name="id" value={product.id} /><input type="hidden" name="field" value="isPublished" /><input type="hidden" name="value" value={String(!product.isPublished)} /><Button size="sm" variant={product.isPublished ? "secondary" : "outline"} type="submit">{product.isPublished ? "Published" : "Draft"}</Button></form></TableCell><TableCell><form action={toggleProductAction}><input type="hidden" name="id" value={product.id} /><input type="hidden" name="field" value="featured" /><input type="hidden" name="value" value={String(!product.featured)} /><Button size="sm" variant="ghost" type="submit">{product.featured ? "Featured" : "Feature"}</Button></form></TableCell><TableCell><div className="flex justify-end gap-2"><Button size="sm" variant="outline" render={<Link href={`/admin/products/${product.id}`} />}>Edit</Button><ConfirmAction label="Delete" title={`Delete ${product.name}?`} description="This action permanently removes the product and its files. It cannot be undone." action={<form action={deleteProductAction}><input type="hidden" name="id" value={product.id} /></form>} /></div></TableCell></TableRow>)}</TableBody></Table>{!rows.length ? <p className="p-10 text-center text-sm text-muted-foreground">No products found.</p> : null}</div></div>
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const rows = await getAdminProducts(q);
+  return (
+    <div className="mx-auto max-w-7xl">
+      <AdminHeader
+        title="Products"
+        description="Create, publish, and maintain your digital product catalog."
+        search={q}
+      />
+      <div className="mb-5 flex justify-end">
+        <Button
+          nativeButton={false}
+          render={<Link href="/admin/products/new" />}
+        >
+          <PlusIcon className="size-4" />
+          Add product
+        </Button>
+      </div>
+      <div className="rounded-xl border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Product</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>State</TableHead>
+              <TableHead>Featured</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map(({ product, categoryName }) => (
+              <TableRow key={product.id}>
+                <TableCell>
+                  <Link
+                    href={`/admin/products/${product.id}`}
+                    className="font-medium hover:underline"
+                  >
+                    {product.name}
+                  </Link>
+                  <p className="text-xs text-muted-foreground">
+                    v{product.version}
+                  </p>
+                </TableCell>
+                <TableCell>{categoryName}</TableCell>
+                <TableCell>
+                  {product.salePriceCents ? (
+                    <>
+                      <span className="font-medium">
+                        {formatPrice(product.salePriceCents / 100)}
+                      </span>
+                      <span className="ml-2 text-xs text-muted-foreground line-through">
+                        {formatPrice(product.priceCents / 100)}
+                      </span>
+                    </>
+                  ) : (
+                    formatPrice(product.priceCents / 100)
+                  )}
+                </TableCell>
+                <TableCell>
+                  <form action={toggleProductAction}>
+                    <input type="hidden" name="id" value={product.id} />
+                    <input type="hidden" name="field" value="isPublished" />
+                    <input
+                      type="hidden"
+                      name="value"
+                      value={String(!product.isPublished)}
+                    />
+                    <Button
+                      size="sm"
+                      variant={product.isPublished ? "secondary" : "outline"}
+                      type="submit"
+                    >
+                      {product.isPublished ? "Published" : "Draft"}
+                    </Button>
+                  </form>
+                </TableCell>
+                <TableCell>
+                  <form action={toggleProductAction}>
+                    <input type="hidden" name="id" value={product.id} />
+                    <input type="hidden" name="field" value="featured" />
+                    <input
+                      type="hidden"
+                      name="value"
+                      value={String(!product.featured)}
+                    />
+                    <Button size="sm" variant="ghost" type="submit">
+                      {product.featured ? "Featured" : "Feature"}
+                    </Button>
+                  </form>
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      nativeButton={false}
+                      render={<Link href={`/admin/products/${product.id}`} />}
+                    >
+                      Edit
+                    </Button>
+                    <ConfirmAction
+                      label="Delete"
+                      title={`Delete ${product.name}?`}
+                      description="This action permanently removes the product and its files. It cannot be undone."
+                      action={
+                        <form action={deleteProductAction}>
+                          <input type="hidden" name="id" value={product.id} />
+                        </form>
+                      }
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {!rows.length ? (
+          <p className="p-10 text-center text-sm text-muted-foreground">
+            No products found.
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
 }

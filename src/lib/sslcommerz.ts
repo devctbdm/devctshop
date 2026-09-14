@@ -21,7 +21,7 @@ type ValidationResponse = GatewayPayload & {
 
 function required(name: string) {
   const value = process.env[name]
-  if (!value) throw new Error(`${name} is not configured`)
+  if (!value?.trim()) throw new Error(`sslcommerz_missing_${name.toLowerCase()}`)
   return value
 }
 
@@ -33,6 +33,20 @@ export function sslBaseUrl() {
 
 export function publicOrigin() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+}
+
+export function hasPublicCallbackOrigin() {
+  try {
+    const url = new URL(publicOrigin())
+    const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(url.hostname)
+    const allowLocalhost =
+      process.env.NODE_ENV === "development" &&
+      process.env.SSLCOMMERZ_ALLOW_LOCALHOST === "true"
+
+    return !isLocalhost || allowLocalhost
+  } catch {
+    return false
+  }
 }
 
 export async function initializeSslcommerzPayment({
@@ -48,6 +62,8 @@ export async function initializeSslcommerzPayment({
   name: string
   productNames: string[]
 }) {
+  if (!hasPublicCallbackOrigin()) throw new Error("sslcommerz_public_callback_url_required")
+
   const form = new URLSearchParams({
     store_id: required("SSLCOMMERZ_STORE_ID"),
     store_passwd: required("SSLCOMMERZ_STORE_PASSWORD"),
@@ -78,11 +94,20 @@ export async function initializeSslcommerzPayment({
     body: form,
     cache: "no-store",
   })
-  if (!response.ok) throw new Error(`SSLCommerz initialization failed (${response.status})`)
+  if (!response.ok) throw new Error(`sslcommerz_http_${response.status}`)
 
-  const result = (await response.json()) as InitResponse
+  let result: InitResponse
+  try {
+    result = (await response.json()) as InitResponse
+  } catch {
+    throw new Error("sslcommerz_invalid_response")
+  }
   if (result.status !== "SUCCESS" || !result.GatewayPageURL) {
-    throw new Error(result.failedreason || "SSLCommerz did not return a payment URL")
+    throw new Error(
+      result.failedreason
+        ? `sslcommerz_${result.failedreason.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`
+        : "sslcommerz_no_payment_url",
+    )
   }
   return result
 }

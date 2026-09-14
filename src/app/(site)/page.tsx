@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "next/link";
 import {
   ArrowRightIcon,
   BadgeCheckIcon,
@@ -6,26 +6,26 @@ import {
   DownloadIcon,
   RocketIcon,
   ShieldCheckIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { ProductCard } from "@/components/product-card"
-import { categories, getFeaturedProducts } from "@/lib/products"
+} from "@/components/ui/card";
+import { ProductCard } from "@/components/product-card";
+import { categories, getFeaturedProducts } from "@/lib/products";
 
 const stats = [
   { value: "480+", label: "Products" },
   { value: "32k", label: "Downloads" },
   { value: "4.8/5", label: "Average rating" },
   { value: "24h", label: "Avg. support response" },
-]
+];
 
 const valueProps = [
   {
@@ -52,7 +52,7 @@ const valueProps = [
       "Get the full source code within seconds of purchase — no waiting, no friction.",
     icon: DownloadIcon,
   },
-]
+];
 
 function Hero() {
   return (
@@ -74,6 +74,7 @@ function Hero() {
             <Button
               size="lg"
               className="w-full sm:w-auto"
+              nativeButton={false}
               render={<Link href="/products" />}
             >
               Browse products
@@ -83,6 +84,7 @@ function Hero() {
               variant="outline"
               size="lg"
               className="w-full sm:w-auto"
+              nativeButton={false}
               render={<Link href="/categories" />}
             >
               Browse categories
@@ -103,7 +105,7 @@ function Hero() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 function Categories() {
@@ -140,7 +142,7 @@ function Categories() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 function FeaturedProducts() {
@@ -160,6 +162,7 @@ function FeaturedProducts() {
           <Button
             variant="outline"
             className="w-fit shrink-0"
+            nativeButton={false}
             render={<Link href="/products" />}
           >
             View all products
@@ -173,7 +176,7 @@ function FeaturedProducts() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 function ValueProps() {
@@ -205,7 +208,7 @@ function ValueProps() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 function CtaBanner() {
@@ -224,6 +227,7 @@ function CtaBanner() {
             <Button
               size="lg"
               className="w-full sm:w-auto"
+              nativeButton={false}
               render={<Link href="/products" />}
             >
               Browse products
@@ -232,25 +236,28 @@ function CtaBanner() {
               variant="outline"
               size="lg"
               className="w-full sm:w-auto"
+              nativeButton={false}
               render={<Link href="/categories" />}
             >
               Browse categories
             </Button>
           </div>
           <ul className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-            {["No subscriptions", "30-day money back", "Commercial license"].map(
-              (item) => (
-                <li key={item} className="inline-flex items-center gap-1.5">
-                  <CheckIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
-                  {item}
-                </li>
-              )
-            )}
+            {[
+              "No subscriptions",
+              "30-day money back",
+              "Commercial license",
+            ].map((item) => (
+              <li key={item} className="inline-flex items-center gap-1.5">
+                <CheckIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
+                {item}
+              </li>
+            ))}
           </ul>
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 export default function HomePage() {
@@ -262,5 +269,5 @@ export default function HomePage() {
       <ValueProps />
       <CtaBanner />
     </>
-  )
+  );
 }

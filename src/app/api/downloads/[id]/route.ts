@@ -2,8 +2,9 @@ import { and, eq } from "drizzle-orm"
 import { NextResponse } from "next/server"
 
 import { db } from "@/db"
-import { downloads } from "@/db/schema"
+import { downloads, productFiles } from "@/db/schema"
 import { auth } from "@/lib/auth/auth"
+import { getR2DownloadUrl } from "@/lib/r2/signed-url"
 
 export async function GET(
   request: Request,
@@ -39,5 +40,13 @@ export async function GET(
     })
     .where(and(eq(downloads.id, id), eq(downloads.userId, userId)))
 
-  return NextResponse.json({ error: "file_delivery_not_configured" }, { status: 501 })
+  const [file] = await db
+    .select()
+    .from(productFiles)
+    .where(eq(productFiles.id, download.productFileId))
+    .limit(1)
+  if (!file) return NextResponse.json({ error: "file_not_found" }, { status: 404 })
+
+  const fileUrl = await getR2DownloadUrl(file.path, file.name)
+  return NextResponse.redirect(fileUrl)
 }

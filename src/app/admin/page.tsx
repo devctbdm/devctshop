@@ -1,13 +1,117 @@
-import { DollarSignIcon, DownloadIcon, PackageIcon, ShoppingCartIcon, UsersIcon } from "lucide-react"
-import { AdminHeader } from "@/components/admin/admin-header"
-import { AdminStatCard } from "@/components/admin/admin-stat-card"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getAdminMetrics, getAdminOrders } from "@/lib/admin"
-import { formatPrice } from "@/lib/products"
+import {
+  DollarSignIcon,
+  DownloadIcon,
+  PackageIcon,
+  ShoppingCartIcon,
+  UsersIcon,
+} from "lucide-react";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { AdminStatCard } from "@/components/admin/admin-stat-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAdminMetrics, getAdminOrders } from "@/lib/admin";
+import { formatPrice } from "@/lib/products";
 
 export default async function AdminPage() {
-  const [metrics, recentOrders] = await Promise.all([getAdminMetrics(), getAdminOrders()])
+  const [metrics, recentOrders] = await Promise.all([
+    getAdminMetrics(),
+    getAdminOrders(),
+  ]);
   return (
-    <div className="mx-auto max-w-7xl"><AdminHeader title="Dashboard" description="A focused view of your store activity and performance." /><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"><AdminStatCard label="Revenue" value={formatPrice(metrics.revenueCents / 100)} hint="Paid orders" icon={<DollarSignIcon className="size-4" />} /><AdminStatCard label="Orders" value={String(metrics.orders)} icon={<ShoppingCartIcon className="size-4" />} /><AdminStatCard label="Products" value="0" hint="Catalog records" icon={<PackageIcon className="size-4" />} /><AdminStatCard label="Users" value={String(metrics.users)} icon={<UsersIcon className="size-4" />} /><AdminStatCard label="Downloads" value={String(metrics.downloads)} icon={<DownloadIcon className="size-4" />} /></div><div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]"><Card><CardHeader><CardTitle>Recent orders</CardTitle></CardHeader><CardContent>{recentOrders.length ? <div className="divide-y">{recentOrders.slice(0, 6).map(({ order }) => <div key={order.id} className="flex items-center justify-between gap-4 py-3"><div><p className="text-sm font-medium">{order.orderNumber}</p><p className="text-xs text-muted-foreground">{order.createdAt.toLocaleDateString()}</p></div><div className="text-right"><p className="text-sm font-semibold">{formatPrice(order.totalCents / 100)}</p><p className="text-xs capitalize text-muted-foreground">{order.status}</p></div></div>)}</div> : <p className="py-8 text-center text-sm text-muted-foreground">No orders have been placed yet.</p>}</CardContent></Card><Card><CardHeader><CardTitle>Store health</CardTitle></CardHeader><CardContent className="space-y-4 text-sm"><div className="flex items-center justify-between"><span className="text-muted-foreground">Payments</span><span className="font-medium text-emerald-600 dark:text-emerald-400">Connected</span></div><div className="flex items-center justify-between"><span className="text-muted-foreground">Database</span><span className="font-medium text-emerald-600 dark:text-emerald-400">Connected</span></div><div className="flex items-center justify-between"><span className="text-muted-foreground">Reviews</span><span className="font-medium">{metrics.reviews}</span></div></CardContent></Card></div></div>
-  )
+    <div className="mx-auto max-w-7xl">
+      <AdminHeader
+        title="Dashboard"
+        description="A focused view of your store activity and performance."
+      />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <AdminStatCard
+          label="Revenue"
+          value={formatPrice(metrics.revenueCents / 100)}
+          hint="Paid orders"
+          icon={<DollarSignIcon className="size-4" />}
+        />
+        <AdminStatCard
+          label="Orders"
+          value={String(metrics.orders)}
+          icon={<ShoppingCartIcon className="size-4" />}
+        />
+        <AdminStatCard
+          label="Products"
+          value="0"
+          hint="Catalog records"
+          icon={<PackageIcon className="size-4" />}
+        />
+        <AdminStatCard
+          label="Users"
+          value={String(metrics.users)}
+          icon={<UsersIcon className="size-4" />}
+        />
+        <AdminStatCard
+          label="Downloads"
+          value={String(metrics.downloads)}
+          icon={<DownloadIcon className="size-4" />}
+        />
+      </div>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {recentOrders.length ? (
+              <div className="divide-y">
+                {recentOrders.slice(0, 6).map(({ order }) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between gap-4 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-medium">{order.orderNumber}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.createdAt.toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold">
+                        {formatPrice(order.totalCents / 100)}
+                      </p>
+                      <p className="text-xs capitalize text-muted-foreground">
+                        {order.status}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No orders have been placed yet.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Store health</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Payments</span>
+              <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                Connected
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Database</span>
+              <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                Connected
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Reviews</span>
+              <span className="font-medium">{metrics.reviews}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }

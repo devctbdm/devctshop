@@ -27,6 +27,9 @@ import {
 } from "@/lib/auth/actions";
 import { authInitialState, type AuthState } from "@/lib/auth/initial-state";
 import type { PublicUser } from "@/lib/auth/users";
+import { CloudinaryImageUpload } from "@/components/cloudinary/cloudinary-image-upload";
+import type { CloudinaryAsset } from "@/components/cloudinary/cloudinary-image-preview";
+import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary/client-folders";
 
 function unauthorizedMessage(state: AuthState) {
   return state.error === "unauthorized"
@@ -52,6 +55,17 @@ export function ProfileForm({
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
   const router = useRouter();
+  const [avatar, setAvatar] = useState<CloudinaryAsset | null>(
+    user.avatarUrl
+      ? {
+          publicId: user.avatarUrl,
+          secureUrl: user.avatarUrl,
+          width: 256,
+          height: 256,
+          format: "",
+        }
+      : null,
+  );
 
   const handleResend = async () => {
     setResending(true);
@@ -92,12 +106,40 @@ export function ProfileForm({
               autoComplete="name"
               error={profileState.fields?.fullName}
             />
-            <TextField
-              name="avatarUrl"
-              label="Avatar URL"
-              placeholder="https://…/me.png"
-              defaultValue={user.avatarUrl ?? ""}
-            />
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Avatar</span>
+              <CloudinaryImageUpload
+                value={avatar}
+                onChange={setAvatar}
+                folder={`${CLOUDINARY_FOLDERS.users}/${user.id}`}
+                label="Upload avatar"
+              />
+              <input
+                type="hidden"
+                name="avatarUrl"
+                value={avatar?.secureUrl ?? ""}
+              />
+              <input
+                type="hidden"
+                name="avatarPublicId"
+                value={avatar?.publicId ?? ""}
+              />
+              <input
+                type="hidden"
+                name="avatarWidth"
+                value={avatar?.width ?? ""}
+              />
+              <input
+                type="hidden"
+                name="avatarHeight"
+                value={avatar?.height ?? ""}
+              />
+              <input
+                type="hidden"
+                name="avatarFormat"
+                value={avatar?.format ?? ""}
+              />
+            </div>
             <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2.5">
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium">Email</span>
@@ -182,7 +224,11 @@ export function ProfileForm({
           </div>
           <div className="flex gap-2">
             {user.role === "ADMIN" ? (
-              <Button variant="outline" render={<Link href="/admin" />}>
+              <Button
+                variant="outline"
+                nativeButton={false}
+                render={<Link href="/admin" />}
+              >
                 Admin area
               </Button>
             ) : null}

@@ -15,6 +15,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { MenuIcon, SearchIcon } from "lucide-react";
+import Link from "next/link";
 
 const navigation = [
   { title: "Products", href: "/products" },
@@ -27,14 +28,14 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       {navigation.map((item) => (
-        <a
+        <Link
           key={item.title}
           href={item.href}
           onClick={onNavigate}
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           {item.title}
-        </a>
+        </Link>
       ))}
     </>
   );
@@ -71,7 +72,7 @@ export function SiteHeader({ user }: { user?: HeaderUser | null }) {
                 size="sm"
                 className="hidden md:inline-flex"
                 nativeButton={false}
-                render={<a href="/account" />}
+                render={<Link href="/account" />}
               >
                 Account
               </Button>
@@ -84,7 +85,7 @@ export function SiteHeader({ user }: { user?: HeaderUser | null }) {
                 size="sm"
                 className="hidden md:inline-flex"
                 nativeButton={false}
-                render={<a href="/auth/login" />}
+                render={<Link href="/auth/login" />}
               >
                 Sign in
               </Button>
@@ -92,7 +93,7 @@ export function SiteHeader({ user }: { user?: HeaderUser | null }) {
                 size="sm"
                 className="hidden md:inline-flex"
                 nativeButton={false}
-                render={<a href="/auth/register" />}
+                render={<Link href="/auth/register" />}
               >
                 Get started
               </Button>
@@ -117,7 +118,6 @@ export function SiteHeader({ user }: { user?: HeaderUser | null }) {
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
                 <div className="flex items-center justify-between">
                   <Logo />
-                  {user ? <UserMenu user={user} /> : <ThemeToggle />}
                 </div>
               </SheetHeader>
               <nav className="flex flex-col gap-4 px-4 py-4">
@@ -128,7 +128,7 @@ export function SiteHeader({ user }: { user?: HeaderUser | null }) {
                   <>
                     <Button
                       nativeButton={false}
-                      render={<a href="/account" />}
+                      render={<Link href="/account" />}
                       onClick={() => setOpen(false)}
                     >
                       Go to account
@@ -137,7 +137,7 @@ export function SiteHeader({ user }: { user?: HeaderUser | null }) {
                       <Button
                         variant="outline"
                         nativeButton={false}
-                        render={<a href="/admin" />}
+                        render={<Link href="/admin" />}
                         onClick={() => setOpen(false)}
                       >
                         Admin area
@@ -149,14 +149,14 @@ export function SiteHeader({ user }: { user?: HeaderUser | null }) {
                     <Button
                       variant="outline"
                       nativeButton={false}
-                      render={<a href="/auth/login" />}
+                      render={<Link href="/auth/login" />}
                       onClick={() => setOpen(false)}
                     >
                       Sign in
                     </Button>
                     <Button
                       nativeButton={false}
-                      render={<a href="/auth/register" />}
+                      render={<Link href="/auth/register" />}
                       onClick={() => setOpen(false)}
                     >
                       Get started

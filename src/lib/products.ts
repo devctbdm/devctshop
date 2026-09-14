@@ -32,6 +32,7 @@ export type Product = {
   category: string
   categorySlug: string
   price: number
+  productType?: "FREE" | "PAID"
   salePrice?: number
   gallery: string[]
   technologies: string[]
@@ -129,6 +130,7 @@ export const products: Product[] = [
     category: "Next.js Templates",
     categorySlug: "nextjs",
     price: 199,
+    productType: "PAID",
     salePrice: 149,
     gallery: ["Preview", "Shop", "Product", "Cart"],
     technologies: ["Next.js 16", "TypeScript", "Tailwind CSS", "shadcn/ui", "Zustand"],

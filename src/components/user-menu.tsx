@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { signOut } from "next-auth/react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,12 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ChevronsUpDownIcon,
-  LayoutDashboardIcon,
-  LogOutIcon,
-  UserRoundIcon,
-} from "lucide-react";
+import { LayoutDashboardIcon, LogOutIcon, UserRoundIcon } from "lucide-react";
+import Link from "next/link";
 
 export interface HeaderUser {
   name: string;
@@ -56,7 +51,6 @@ export function UserMenu({ user }: { user: HeaderUser }) {
           {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
           <AvatarFallback>{initials(user.name)}</AvatarFallback>
         </Avatar>
-        <ChevronsUpDownIcon className="size-4 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={8} className="min-w-56">
         <DropdownMenuGroup>
@@ -71,12 +65,18 @@ export function UserMenu({ user }: { user: HeaderUser }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem nativeButton={false} render={<a href="/account" />}>
+          <DropdownMenuItem
+            nativeButton={false}
+            render={<Link href="/account" />}
+          >
             <UserRoundIcon />
             Profile
           </DropdownMenuItem>
           {user.role === "ADMIN" ? (
-            <DropdownMenuItem nativeButton={false} render={<a href="/admin" />}>
+            <DropdownMenuItem
+              nativeButton={false}
+              render={<Link href="/admin" />}
+            >
               <LayoutDashboardIcon />
               Admin area
             </DropdownMenuItem>

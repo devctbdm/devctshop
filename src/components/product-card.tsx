@@ -9,6 +9,7 @@ import { discountPercent, formatPrice, type Product } from "@/lib/products"
 export function ProductCard({ product }: { product: Product }) {
   const discount = discountPercent(product)
   const onSale = product.salePrice != null
+  const isFree = product.productType === "FREE" || (product.productType === undefined && product.price === 0)
 
   return (
     <Card className="group gap-0 overflow-hidden py-0 transition-all hover:border-foreground/20 hover:shadow-md dark:hover:border-white/20">
@@ -56,13 +57,13 @@ export function ProductCard({ product }: { product: Product }) {
 
         <div className="mt-auto flex items-center justify-between border-t px-4 py-3">
           <span className="inline-flex items-baseline gap-2">
-            {onSale ? (
+            {onSale && !isFree ? (
               <span className="text-sm text-muted-foreground line-through">
                 {formatPrice(product.price)}
               </span>
             ) : null}
             <span className="font-heading text-base font-semibold">
-              {formatPrice(product.salePrice ?? product.price)}
+              {isFree ? "FREE" : formatPrice(product.salePrice ?? product.price)}
             </span>
           </span>
           <span className="text-sm font-medium text-foreground/70 transition-colors group-hover:text-foreground">

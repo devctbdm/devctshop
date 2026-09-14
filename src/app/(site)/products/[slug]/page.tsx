@@ -1,25 +1,20 @@
-import Link from "next/link"
-import { notFound } from "next/navigation"
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
-import { ProductCard } from "@/components/product-card"
-import { ProductGallery } from "@/components/product-gallery"
-import { PurchaseCard } from "@/components/purchase-card"
-import { RatingStars } from "@/components/rating-stars"
-import { ReviewsList } from "@/components/reviews-list"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+import { ProductCard } from "@/components/product-card";
+import { ProductGallery } from "@/components/product-gallery";
+import { PurchaseCard } from "@/components/purchase-card";
+import { RatingStars } from "@/components/rating-stars";
+import { ReviewsList } from "@/components/reviews-list";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   getProductBySlug,
   getRelatedProducts,
   type Product,
-} from "@/lib/products"
+} from "@/lib/products";
 import {
   ArrowLeftIcon,
   CheckIcon,
@@ -27,11 +22,11 @@ import {
   FileTextIcon,
   TagIcon,
   InfinityIcon,
-} from "lucide-react"
+} from "lucide-react";
 
 type ProductPageProps = {
-  params: Promise<{ slug: string }>
-}
+  params: Promise<{ slug: string }>;
+};
 
 function Overview({ product }: { product: Product }) {
   return (
@@ -51,7 +46,7 @@ function Overview({ product }: { product: Product }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function FeaturesList({ product }: { product: Product }) {
@@ -66,20 +61,23 @@ function FeaturesList({ product }: { product: Product }) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
 function Requirements({ product }: { product: Product }) {
   return (
     <ul className="space-y-2 text-sm">
       {product.requirements.map((req) => (
-        <li key={req} className="flex items-start gap-2.5 text-muted-foreground">
+        <li
+          key={req}
+          className="flex items-start gap-2.5 text-muted-foreground"
+        >
           <span className="mt-1 size-1.5 shrink-0 rounded-full bg-muted-foreground/50" />
           {req}
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
 function License({ product }: { product: Product }) {
@@ -95,7 +93,10 @@ function License({ product }: { product: Product }) {
       </div>
       <ul className="space-y-2 text-sm">
         {product.license.includes.map((line) => (
-          <li key={line} className="flex items-start gap-2.5 text-muted-foreground">
+          <li
+            key={line}
+            className="flex items-start gap-2.5 text-muted-foreground"
+          >
             <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
               <CheckIcon className="size-3" />
             </span>
@@ -104,7 +105,7 @@ function License({ product }: { product: Product }) {
         ))}
       </ul>
     </div>
-  )
+  );
 }
 
 function DetailTabs({ product }: { product: Product }) {
@@ -133,7 +134,7 @@ function DetailTabs({ product }: { product: Product }) {
         </TabsContent>
       </div>
     </Tabs>
-  )
+  );
 }
 
 function MetaRow({ product }: { product: Product }) {
@@ -174,13 +175,13 @@ function MetaRow({ product }: { product: Product }) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {
-  const { slug } = await params
-  const product = getProductBySlug(slug)
-  if (!product) return { title: "Product not found — Devct Shop" }
+  const { slug } = await params;
+  const product = getProductBySlug(slug);
+  if (!product) return { title: "Product not found — Devct Shop" };
   return {
     title: `${product.name} — Devct Shop`,
     description: product.tagline,
@@ -192,16 +193,16 @@ export async function generateMetadata({ params }: ProductPageProps) {
       url: `/products/${product.slug}`,
       siteName: "Devct Shop",
     },
-  }
+  };
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { slug } = await params
-  const product = getProductBySlug(slug)
-  if (!product) notFound()
+  const { slug } = await params;
+  const product = getProductBySlug(slug);
+  if (!product) notFound();
 
-  const related = getRelatedProducts(product, 4)
-  const reviews = product.reviews
+  const related = getRelatedProducts(product, 4);
+  const reviews = product.reviews;
 
   return (
     <div className="bg-background">
@@ -209,6 +210,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <Button
           variant="ghost"
           size="sm"
+          nativeButton={false}
           render={<Link href="/products" />}
           className="-ml-2 mb-4 gap-1.5 text-muted-foreground"
         >
@@ -288,5 +290,5 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </section>
       ) : null}
     </div>
-  )
+  );
 }

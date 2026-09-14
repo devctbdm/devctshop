@@ -2,7 +2,7 @@ import "server-only"
 
 import { count, desc, eq, ilike, sql } from "drizzle-orm"
 import { db } from "@/db"
-import { categories, downloads, orderItems, orders, payments, products, reviews, users } from "@/db/schema"
+import { categories, downloads, orderItems, orders, payments, productFiles, productImages, products, reviews, users } from "@/db/schema"
 
 export async function getAdminMetrics() {
   const [[revenue], [orderCount], [userCount], [downloadCount], [reviewCount]] = await Promise.all([
@@ -41,7 +41,10 @@ export async function getAdminProducts(search?: string) {
 
 export async function getAdminProduct(id: string) {
   const [row] = await db.select().from(products).where(eq(products.id, id)).limit(1)
-  return row ?? null
+  if (!row) return null
+  const images = await db.select().from(productImages).where(eq(productImages.productId, id)).orderBy(productImages.position)
+  const files = await db.select().from(productFiles).where(eq(productFiles.productId, id)).orderBy(productFiles.createdAt)
+  return { ...row, images, files }
 }
 
 export async function getAdminCategories() {

@@ -198,6 +198,10 @@ async function updateProfileAction(
 
   const fullName = (formData.get("fullName") as string | null)?.trim() ?? "";
   const avatarUrl = (formData.get("avatarUrl") as string | null)?.trim() ?? "";
+  const avatarPublicId = (formData.get("avatarPublicId") as string | null)?.trim() ?? "";
+  const avatarWidth = Number(formData.get("avatarWidth")) || null;
+  const avatarHeight = Number(formData.get("avatarHeight")) || null;
+  const avatarFormat = (formData.get("avatarFormat") as string | null)?.trim() ?? "";
 
   const fields: FieldErrors = {};
   if (fullName.length < 2) fields.fullName = ["Enter your full name."];
@@ -208,6 +212,10 @@ async function updateProfileAction(
     .set({
       fullName,
       avatarUrl: avatarUrl || null,
+      avatarPublicId: avatarPublicId || null,
+      avatarWidth,
+      avatarHeight,
+      avatarFormat: avatarFormat || null,
       updatedAt: new Date(),
     })
     .where(eq(users.id, id));

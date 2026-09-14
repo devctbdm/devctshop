@@ -64,6 +64,10 @@ export const users = pgTable(
     role: userRole("role").notNull().default("USER"),
     isEmailVerified: boolean("is_email_verified").notNull().default(false),
     avatarUrl: text("avatar_url"),
+    avatarPublicId: varchar("avatar_public_id", { length: 255 }),
+    avatarWidth: integer("avatar_width"),
+    avatarHeight: integer("avatar_height"),
+    avatarFormat: varchar("avatar_format", { length: 20 }),
     isActive: boolean("is_active").notNull().default(true),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -154,6 +158,11 @@ export const categories = pgTable(
     slug: varchar("slug", { length: 120 }).notNull().unique(),
     description: text("description"),
     icon: varchar("icon", { length: 60 }),
+    imageUrl: text("image_url"),
+    imagePublicId: varchar("image_public_id", { length: 255 }),
+    imageWidth: integer("image_width"),
+    imageHeight: integer("image_height"),
+    imageFormat: varchar("image_format", { length: 20 }),
     position: integer("position").notNull().default(0),
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -181,6 +190,7 @@ export const products = pgTable(
     demoUrl: text("demo_url"),
     priceCents: integer("price_cents").notNull(),
     salePriceCents: integer("sale_price_cents"),
+    productType: varchar("product_type", { length: 10 }).notNull().default("PAID"),
     currency: char("currency", { length: 3 }).notNull().default("USD"),
     version: varchar("version", { length: 30 }).notNull().default("1.0.0"),
     imageUrls: text("image_urls").array().notNull().default(sql`'{}'`),
@@ -227,10 +237,14 @@ export const productFiles = pgTable(
       .references(() => products.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 200 }).notNull(),
     path: text("path").notNull(),
+    version: varchar("version", { length: 30 }).notNull().default("1.0.0"),
     sizeBytes: bigint("size_bytes", { mode: "number" }).notNull(),
     mimeType: varchar("mime_type", { length: 100 }),
     checksum: varchar("checksum", { length: 64 }),
     createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
@@ -241,6 +255,22 @@ export const productFiles = pgTable(
       table.name,
     ),
   ],
+);
+
+export const productImages = pgTable(
+  "product_images",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+    publicId: varchar("public_id", { length: 255 }).notNull().unique(),
+    secureUrl: text("secure_url").notNull(),
+    width: integer("width").notNull(),
+    height: integer("height").notNull(),
+    format: varchar("format", { length: 20 }).notNull(),
+    position: integer("position").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("product_images_product_id_idx").on(table.productId), index("product_images_position_idx").on(table.productId, table.position)],
 );
 
 export const orders = pgTable(

@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -16,7 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://devct.shop"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://devct.shop",
+  ),
   title: {
     default: "Devct Shop — Premium templates, UI kits & source code",
     template: "%s — Devct Shop",
@@ -54,11 +55,6 @@ export const viewport: Viewport = {
   ],
 };
 
-function getThemeScript() {
-  const file = join(process.cwd(), "src", "lib", "theme-script.js");
-  return readFileSync(file, "utf-8");
-}
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -67,11 +63,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       data-scroll-behavior="smooth"
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: getThemeScript() }} />
-      </head>
       <body className="flex min-h-dvh flex-col bg-background text-foreground antialiased">
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

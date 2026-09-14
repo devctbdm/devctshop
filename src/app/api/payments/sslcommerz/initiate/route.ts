@@ -45,7 +45,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ redirectUrl: session.GatewayPageURL })
   } catch (error) {
     const message = error instanceof Error ? error.message : "payment_initialization_failed"
-    const known = new Set(["empty_order", "invalid_coupon", "expired_coupon", "coupon_not_applicable"])
-    return NextResponse.json({ error: known.has(message) ? message : "payment_initialization_failed" }, { status: 422 })
+    console.error("SSLCommerz initialization failed", message)
+    const known = new Set([
+      "empty_order",
+      "invalid_coupon",
+      "expired_coupon",
+      "coupon_not_applicable",
+      "sslcommerz_public_callback_url_required",
+      "sslcommerz_missing_sslcommerz_store_id",
+      "sslcommerz_missing_sslcommerz_store_password",
+    ])
+    return NextResponse.json(
+      { error: known.has(message) ? message : "payment_initialization_failed" },
+      { status: 422 },
+    )
   }
 }
