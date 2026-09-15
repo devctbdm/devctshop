@@ -3,6 +3,7 @@ import { Geist_Mono, Inter } from "next/font/google";
 
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { getGeneralSettings } from "@/lib/settings";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,39 +15,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://devct.shop",
-  ),
-  title: {
-    default: "Devct Shop — Premium templates, UI kits & source code",
-    template: "%s — Devct Shop",
-  },
-  description:
-    "Buy and sell production-ready website source code, Next.js templates, React templates, admin dashboards, and UI kits. Built for developers who ship fast.",
-  keywords: [
-    "next.js templates",
-    "react templates",
-    "admin dashboards",
-    "ui kits",
-    "source code",
-    "digital products",
-  ],
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://devct.shop",
-    siteName: "Devct Shop",
-    title: "Devct Shop — Premium templates, UI kits & source code",
-    description:
-      "Buy and sell production-ready website source code, Next.js templates, React templates, admin dashboards, and UI kits.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Devct Shop",
-    description: "Premium templates, UI kits, and source code for developers.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getGeneralSettings();
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://devct.shop";
+  return {
+    metadataBase: new URL(origin),
+    title: { default: `${settings.shopName} — ${settings.tagline}`, template: `%s — ${settings.shopName}` },
+    description: settings.siteDescription,
+    keywords: ["next.js templates", "react templates", "admin dashboards", "ui kits", "source code", "digital products"],
+    openGraph: { type: "website", locale: "en_US", url: origin, siteName: settings.shopName, title: `${settings.shopName} — ${settings.tagline}`, description: settings.siteDescription },
+    twitter: { card: "summary_large_image", title: settings.shopName, description: settings.siteDescription },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [

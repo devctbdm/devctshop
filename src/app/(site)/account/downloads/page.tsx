@@ -1,7 +1,6 @@
 import { DownloadIcon } from "lucide-react";
 
 import { CustomerEmpty } from "@/components/customer-empty";
-import { CustomerShell } from "@/components/customer-shell";
 import { ProductCover } from "@/components/product-cover";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,11 +11,7 @@ export default async function DownloadsPage() {
   const user = await requireUser();
   const downloads = await getCustomerDownloads(user.id);
   return (
-    <CustomerShell
-      active="/dashboard/downloads"
-      title="My downloads"
-      description="Secure access to the digital products you have purchased."
-    >
+    <>
       {downloads.length ? (
         <div className="space-y-3">
           {downloads.map((download) => (
@@ -57,6 +52,6 @@ export default async function DownloadsPage() {
           action={{ label: "Browse products", href: "/products" }}
         />
       )}
-    </CustomerShell>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const PALETTES = [
   "from-slate-500/90 via-slate-700/90 to-slate-900",
@@ -9,32 +9,34 @@ const PALETTES = [
   "from-rose-500/90 via-pink-700/90 to-slate-900",
   "from-violet-500/90 via-purple-700/90 to-slate-900",
   "from-cyan-500/90 via-sky-700/90 to-slate-900",
-]
+];
 
 function hashString(input: string): number {
-  let h = 0
+  let h = 0;
   for (let i = 0; i < input.length; i++) {
-    h = (Math.imul(31, h) + input.charCodeAt(i)) | 0
+    h = (Math.imul(31, h) + input.charCodeAt(i)) | 0;
   }
-  return Math.abs(h)
+  return Math.abs(h);
 }
 
 type ProductCoverProps = {
-  seed: string
-  label?: string
-  className?: string
-}
+  seed: string;
+  label?: string;
+  className?: string;
+};
 
 export function ProductCover({ seed, label, className }: ProductCoverProps) {
-  const index = hashString(seed) % PALETTES.length
-  const monogram = (seed.replace(/[-_]/g, " ").trim().slice(0, 1) || "D").toUpperCase()
+  const index = hashString(seed) % PALETTES.length;
+  const monogram = (
+    seed.replace(/[-_]/g, " ").trim().slice(0, 1) || "D"
+  ).toUpperCase();
 
   return (
     <div
       className={cn(
-        "relative flex items-center justify-center overflow-hidden bg-gradient-to-br",
+        "relative flex items-center justify-center overflow-hidden bg-linear-to-br",
         PALETTES[index],
-        className
+        className,
       )}
       role="img"
       aria-label={label ? `${label} preview` : undefined}
@@ -64,5 +66,5 @@ export function ProductCover({ seed, label, className }: ProductCoverProps) {
         </span>
       ) : null}
     </div>
-  )
+  );
 }

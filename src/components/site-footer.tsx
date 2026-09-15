@@ -1,7 +1,8 @@
-import Link from "next/link"
+import Link from "next/link";
 
-import { Logo } from "@/components/logo"
-import { Code2Icon, GlobeIcon, MessageCircleIcon } from "lucide-react"
+import { Logo } from "@/components/logo";
+import { Code2Icon, GlobeIcon, MessageCircleIcon } from "lucide-react";
+import { getGeneralSettings } from "@/lib/settings";
 
 const footerLinks = [
   {
@@ -16,7 +17,7 @@ const footerLinks = [
   {
     title: "Company",
     links: [
-              { title: "About", href: "/" },
+      { title: "About", href: "/" },
       { title: "Blog", href: "/" },
       { title: "Careers", href: "/" },
       { title: "Contact", href: "mailto:hello@devct.shop" },
@@ -31,19 +32,18 @@ const footerLinks = [
       { title: "Terms", href: "/" },
     ],
   },
-]
+];
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const settings = await getGeneralSettings();
   return (
     <footer className="border-t">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div className="max-w-xs">
             <Logo />
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Premium templates, UI kits, and source code for developers who
-              ship fast.
-            </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{settings.footerDescription}</p>
+            <div className="mt-4 space-y-1 text-sm text-muted-foreground">{settings.contactEmail ? <a className="block hover:text-foreground" href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a> : null}{settings.contactPhone ? <a className="block hover:text-foreground" href={`tel:${settings.contactPhone}`}>{settings.contactPhone}</a> : null}{settings.address ? <span className="block">{settings.address}</span> : null}</div>
           </div>
           {footerLinks.map((column) => (
             <div key={column.title}>
@@ -65,26 +65,26 @@ export function SiteFooter() {
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-6 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Devct Shop. All rights reserved.
+             {settings.copyrightText}
           </p>
           <div className="flex items-center gap-1">
             <a
-              href="https://github.com"
-              className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              href={settings.githubUrl || "#"}
+              className={`${settings.githubUrl ? "" : "hidden"} flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground`}
               aria-label="Open source"
             >
               <Code2Icon className="size-4" />
             </a>
             <a
-              href="mailto:hello@devct.shop"
-              className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              href={settings.facebookUrl || "#"}
+              className={`${settings.facebookUrl ? "" : "hidden"} flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground`}
               aria-label="Community"
             >
               <MessageCircleIcon className="size-4" />
             </a>
             <a
-              href="https://devct.shop"
-              className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              href={settings.youtubeUrl || settings.linkedinUrl || "#"}
+              className={`${settings.youtubeUrl || settings.linkedinUrl ? "" : "hidden"} flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground`}
               aria-label="Website"
             >
               <GlobeIcon className="size-4" />
@@ -93,5 +93,5 @@ export function SiteFooter() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

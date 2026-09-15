@@ -7,7 +7,6 @@ import {
   CircleXIcon,
 } from "lucide-react";
 
-import { CustomerShell } from "@/components/customer-shell";
 import { ProductCover } from "@/components/product-cover";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,17 +25,17 @@ export default async function OrderDetailsPage({
   if (!result) notFound();
   const { order, payment, items } = result;
   return (
-    <CustomerShell
-      active="/dashboard/orders"
-      title={`Order ${order.orderNumber}`}
-      description="Order details and purchased products."
-    >
+    <div className="space-y-5">
+      <div>
+        <h2 className="font-heading text-xl font-semibold tracking-tight">Order {order.orderNumber}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Order details and purchased products.</p>
+      </div>
       <Button
         variant="ghost"
         size="sm"
         className="-ml-2 mb-5"
         nativeButton={false}
-        render={<Link href="/dashboard/orders" />}
+        render={<Link href="/account/orders" />}
       >
         <ArrowLeftIcon className="size-4" />
         Back to orders
@@ -98,7 +97,7 @@ export default async function OrderDetailsPage({
           </CardContent>
         </Card>
       </div>
-    </CustomerShell>
+    </div>
   );
 }
 

@@ -54,6 +54,24 @@ export const couponStatus = pgEnum("coupon_status", [
 
 export const discountType = pgEnum("discount_type", ["percent", "fixed"]);
 
+export const generalSettings = pgTable("general_settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  shopName: varchar("shop_name", { length: 120 }).notNull().default("Devct Shop"),
+  tagline: varchar("tagline", { length: 180 }).notNull().default("Premium Digital Products for Developers"),
+  siteDescription: text("site_description").notNull().default("Devct Shop is a digital marketplace for high-quality website source code, templates, UI kits, and ready-to-use development projects."),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 40 }),
+  address: text("address"),
+  footerDescription: text("footer_description").notNull().default("Devct Shop is a digital marketplace for developers, offering high-quality website source code, templates, UI kits, and ready-to-use development projects."),
+  copyrightText: varchar("copyright_text", { length: 180 }).notNull().default("© 2026 Devct Shop. All rights reserved."),
+  facebookUrl: text("facebook_url"),
+  githubUrl: text("github_url"),
+  youtubeUrl: text("youtube_url"),
+  linkedinUrl: text("linkedin_url"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const users = pgTable(
   "users",
   {
@@ -79,6 +97,15 @@ export const users = pgTable(
   },
   (table) => [index("users_role_idx").on(table.role)],
 );
+
+export const userPreferences = pgTable("user_preferences", {
+  userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  orderNotifications: boolean("order_notifications").notNull().default(true),
+  downloadNotifications: boolean("download_notifications").notNull().default(true),
+  productUpdates: boolean("product_updates").notNull().default(true),
+  emailNotifications: boolean("email_notifications").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const accounts = pgTable(
   "accounts",
@@ -187,6 +214,10 @@ export const products = pgTable(
     tagline: varchar("tagline", { length: 200 }),
     description: text("description"),
     thumbnailUrl: text("thumbnail_url"),
+    thumbnailPublicId: varchar("thumbnail_public_id", { length: 255 }),
+    thumbnailWidth: integer("thumbnail_width"),
+    thumbnailHeight: integer("thumbnail_height"),
+    thumbnailFormat: varchar("thumbnail_format", { length: 20 }),
     demoUrl: text("demo_url"),
     priceCents: integer("price_cents").notNull(),
     salePriceCents: integer("sale_price_cents"),

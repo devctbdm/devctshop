@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { ProductGalleryField } from "@/components/admin/product-gallery-field";
 import { DigitalFileUpload } from "@/components/admin/digital-file-upload";
 import { randomUUID } from "node:crypto";
+import { ProductThumbnailField } from "@/components/admin/product-thumbnail-field";
 
 type ProductRecord = Awaited<
   ReturnType<typeof import("@/lib/admin").getAdminProduct>
@@ -23,6 +24,11 @@ export async function AdminProductForm({
   return (
     <form action={action} className="space-y-6">
       <input type="hidden" name="id" value={product?.id ?? randomUUID()} />
+      <input
+        type="hidden"
+        name="images"
+        value={(product?.imageUrls ?? []).join("\n")}
+      />
       <div className="grid gap-5 rounded-xl border bg-card p-5 sm:grid-cols-2">
         <Field
           name="name"
@@ -79,18 +85,24 @@ export async function AdminProductForm({
             product?.salePriceCents ? product.salePriceCents / 100 : undefined
           }
         />
-        <div className="flex flex-col gap-1.5"><Label htmlFor="productType">Product type</Label><select id="productType" name="productType" required defaultValue={product?.productType ?? "PAID"} className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"><option value="PAID">Paid</option><option value="FREE">Free</option></select></div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="productType">Product type</Label>
+          <select
+            id="productType"
+            name="productType"
+            required
+            defaultValue={product?.productType ?? "PAID"}
+            className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <option value="PAID">Paid</option>
+            <option value="FREE">Free</option>
+          </select>
+        </div>
         <Field
           name="license"
           label="License"
           required
           defaultValue={product?.license ?? "Commercial License"}
-        />
-        <Field
-          name="thumbnailUrl"
-          label="Thumbnail URL"
-          type="url"
-          defaultValue={product?.thumbnailUrl ?? ""}
         />
         <Field
           name="demoUrl"
@@ -119,11 +131,28 @@ export async function AdminProductForm({
             format: image.format,
           }))}
         />
-        <DigitalFileUpload productId={product?.id} version={product?.version ?? "1.0.0"} initial={(product?.files ?? []).map((file) => ({ name: file.name, path: file.path, sizeBytes: file.sizeBytes, mimeType: file.mimeType ?? "application/zip" }))} />
-        <TextAreaField
-          name="images"
-          label="Legacy image URLs (optional)"
-          defaultValue={(product?.imageUrls ?? []).join("\n")}
+        <ProductThumbnailField
+          initial={
+            product?.thumbnailUrl
+              ? {
+                  publicId: product.thumbnailPublicId ?? product.thumbnailUrl,
+                  secureUrl: product.thumbnailUrl,
+                  width: product.thumbnailWidth ?? 1200,
+                  height: product.thumbnailHeight ?? 800,
+                  format: product.thumbnailFormat ?? "",
+                }
+              : null
+          }
+        />
+        <DigitalFileUpload
+          productId={product?.id}
+          version={product?.version ?? "1.0.0"}
+          initial={(product?.files ?? []).map((file) => ({
+            name: file.name,
+            path: file.path,
+            sizeBytes: file.sizeBytes,
+            mimeType: file.mimeType ?? "application/zip",
+          }))}
         />
         <TextAreaField
           name="technologies"

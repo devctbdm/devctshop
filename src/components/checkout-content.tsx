@@ -157,7 +157,7 @@ export function CheckoutContent({
       <div>
         <Link
           href="/cart"
-          className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-transparent text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 h-7 gap-1 px-2.5 text-[0.8rem] -ml-2 mb-5 gap-1.5 text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50"
+          className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-transparent text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 h-7 px-2.5 text-[0.8rem] -ml-2 mb-5 gap-1.5 text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50"
         >
           <ArrowLeftIcon className="size-4" /> Back to cart
         </Link>

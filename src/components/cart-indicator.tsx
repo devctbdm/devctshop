@@ -53,14 +53,14 @@ export function CartIndicator() {
         render={
           <button
             type="button"
-            className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-transparent text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 size-8 hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50"
+            className="group/button relative inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-transparent bg-transparent text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50"
             aria-label={
               count ? `Cart, ${count} item${count === 1 ? "" : "s"}` : "Cart"
             }
           >
-            <ShoppingCartIcon />
+            <ShoppingCartIcon className="size-4.5" />
             {count ? (
-              <span className="absolute top-0.5 right-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[0.6rem] font-semibold text-primary-foreground">
+              <span className="absolute -top-0.5 -right-0.5 flex min-w-4 items-center justify-center rounded-full border-2 border-background bg-primary px-1 text-[0.6rem] font-semibold leading-3 text-primary-foreground">
                 {count > 9 ? "9+" : count}
               </span>
             ) : null}

@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { usePathname, useRouter } from "next/navigation"
+import * as React from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   buildQueryString,
   categories,
   sortOptions,
   type CatalogQuery,
-} from "@/lib/products"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { SearchIcon, XIcon } from "lucide-react"
+} from "@/lib/products";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { SearchIcon, XIcon } from "lucide-react";
 
 export function ProductFilters({
   search,
@@ -19,24 +19,24 @@ export function ProductFilters({
   sort,
   lockCategory = false,
 }: {
-  search?: string
-  category?: string
-  sort?: string
-  lockCategory?: boolean
+  search?: string;
+  category?: string;
+  sort?: string;
+  lockCategory?: boolean;
 }) {
-  const router = useRouter()
-  const pathname = usePathname()
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const active = Boolean(search || category || sort)
+  const active = Boolean(search || category || sort);
 
   function apply(next: Partial<CatalogQuery>) {
     const params: Record<string, string | undefined> = {
       search: next.search ?? search,
       category: next.category ?? category,
       sort: (next.sort ?? sort) as string | undefined,
-    }
-    const qs = buildQueryString(params)
-    router.replace(`${pathname}${qs}`, { scroll: false })
+    };
+    const qs = buildQueryString(params);
+    router.replace(`${pathname}${qs}`, { scroll: false });
   }
 
   return (
@@ -96,7 +96,9 @@ export function ProductFilters({
         <select
           id="filter-sort"
           value={sort ?? "featured"}
-          onChange={(e) => apply({ sort: e.target.value as CatalogQuery["sort"], page: 1 })}
+          onChange={(e) =>
+            apply({ sort: e.target.value as CatalogQuery["sort"], page: 1 })
+          }
           className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           {sortOptions.map((o) => (
@@ -118,5 +120,5 @@ export function ProductFilters({
         ) : null}
       </div>
     </div>
-  )
+  );
 }

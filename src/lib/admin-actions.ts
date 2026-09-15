@@ -28,6 +28,10 @@ const productSchema = z.object({
   features: textList,
   requirements: textList,
   tags: textList,
+  thumbnailPublicId: z.string().trim().max(255).optional().or(z.literal("")),
+  thumbnailWidth: z.coerce.number().int().positive().optional(),
+  thumbnailHeight: z.coerce.number().int().positive().optional(),
+  thumbnailFormat: z.string().trim().max(20).optional().or(z.literal("")),
 })
 
 function productData(formData: FormData) {
@@ -48,6 +52,10 @@ function productData(formData: FormData) {
     version: parsed.version,
     license: parsed.license,
     thumbnailUrl: parsed.thumbnailUrl || null,
+    thumbnailPublicId: parsed.thumbnailPublicId || null,
+    thumbnailWidth: parsed.thumbnailWidth ?? null,
+    thumbnailHeight: parsed.thumbnailHeight ?? null,
+    thumbnailFormat: parsed.thumbnailFormat || null,
     demoUrl: parsed.demoUrl || null,
     imageUrls: parsed.images,
     techStack: parsed.technologies,

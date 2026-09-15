@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { ProductCover } from "@/components/product-cover"
-import { cn } from "@/lib/utils"
+import { ProductCover } from "@/components/product-cover";
+import { cn } from "@/lib/utils";
 
 export function ProductGallery({
   slug,
   frames,
 }: {
-  slug: string
-  frames: string[]
+  slug: string;
+  frames: string[];
 }) {
-  const [active, setActive] = React.useState(0)
+  const [active, setActive] = React.useState(0);
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-[16/10] overflow-hidden rounded-xl border">
+      <div className="relative aspect-16/10 overflow-hidden rounded-xl border">
         <ProductCover
           seed={`${slug}#${active + 1}`}
           label={frames[active]}
@@ -30,10 +30,10 @@ export function ProductGallery({
             type="button"
             onClick={() => setActive(i)}
             className={cn(
-              "relative aspect-[16/10] overflow-hidden rounded-lg border transition-all",
+              "relative aspect-16/10 overflow-hidden rounded-lg border transition-all",
               i === active
                 ? "border-foreground/40 ring-2 ring-ring/50"
-                : "border-border opacity-80 hover:opacity-100"
+                : "border-border opacity-80 hover:opacity-100",
             )}
             aria-label={`View ${frame}`}
             aria-pressed={i === active}
@@ -46,5 +46,5 @@ export function ProductGallery({
         ))}
       </div>
     </div>
-  )
+  );
 }

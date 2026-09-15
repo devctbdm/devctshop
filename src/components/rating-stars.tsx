@@ -1,16 +1,20 @@
-import { StarIcon } from "lucide-react"
+import { StarIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 type RatingStarsProps = {
-  rating: number
-  className?: string
-  size?: "sm" | "md"
-}
+  rating: number;
+  className?: string;
+  size?: "sm" | "md";
+};
 
-export function RatingStars({ rating, className, size = "md" }: RatingStarsProps) {
-  const pct = Math.max(0, Math.min(100, (rating / 5) * 100))
-  const starClass = size === "sm" ? "size-3.5" : "size-4"
+export function RatingStars({
+  rating,
+  className,
+  size = "md",
+}: RatingStarsProps) {
+  const pct = Math.max(0, Math.min(100, (rating / 5) * 100));
+  const starClass = size === "sm" ? "size-3.5" : "size-4";
 
   return (
     <span
@@ -29,9 +33,12 @@ export function RatingStars({ rating, className, size = "md" }: RatingStarsProps
         aria-hidden
       >
         {Array.from({ length: 5 }).map((_, i) => (
-          <StarIcon key={i} className={cn(starClass, "shrink-0 fill-current")} />
+          <StarIcon
+            key={i}
+            className={cn(starClass, "shrink-0 fill-current")}
+          />
         ))}
       </span>
     </span>
-  )
+  );
 }

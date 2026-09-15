@@ -1,15 +1,17 @@
-import Link from "next/link"
+import Link from "next/link";
 
-import { ProductCover } from "@/components/product-cover"
-import { RatingStars } from "@/components/rating-stars"
-import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
-import { discountPercent, formatPrice, type Product } from "@/lib/products"
+import { ProductCover } from "@/components/product-cover";
+import { RatingStars } from "@/components/rating-stars";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { discountPercent, formatPrice, type Product } from "@/lib/products";
 
 export function ProductCard({ product }: { product: Product }) {
-  const discount = discountPercent(product)
-  const onSale = product.salePrice != null
-  const isFree = product.productType === "FREE" || (product.productType === undefined && product.price === 0)
+  const discount = discountPercent(product);
+  const onSale = product.salePrice != null;
+  const isFree =
+    product.productType === "FREE" ||
+    (product.productType === undefined && product.price === 0);
 
   return (
     <Card className="group gap-0 overflow-hidden py-0 transition-all hover:border-foreground/20 hover:shadow-md dark:hover:border-white/20">
@@ -18,7 +20,7 @@ export function ProductCard({ product }: { product: Product }) {
         className="flex flex-1 flex-col"
         aria-label={product.name}
       >
-        <div className="relative aspect-[16/10]">
+        <div className="relative aspect-16/10">
           <ProductCover seed={product.slug} className="size-full" />
           <div className="absolute top-3 left-3 flex gap-1.5">
             {onSale ? (
@@ -63,7 +65,9 @@ export function ProductCard({ product }: { product: Product }) {
               </span>
             ) : null}
             <span className="font-heading text-base font-semibold">
-              {isFree ? "FREE" : formatPrice(product.salePrice ?? product.price)}
+              {isFree
+                ? "FREE"
+                : formatPrice(product.salePrice ?? product.price)}
             </span>
           </span>
           <span className="text-sm font-medium text-foreground/70 transition-colors group-hover:text-foreground">
@@ -72,5 +76,5 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
       </Link>
     </Card>
-  )
+  );
 }

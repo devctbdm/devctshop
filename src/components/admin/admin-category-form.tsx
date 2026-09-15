@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   createCategoryAction,
@@ -43,7 +45,7 @@ export function AdminCategoryForm({
   );
   return (
     <form action={action} className="space-y-6">
-      <input type="hidden" name="id" value={category?.id ?? ""} />
+      {category ? <input type="hidden" name="id" value={category.id} /> : null}
       <input type="hidden" name="imageUrl" value={image?.secureUrl ?? ""} />
       <input type="hidden" name="imagePublicId" value={image?.publicId ?? ""} />
       <input type="hidden" name="imageWidth" value={image?.width ?? ""} />

@@ -1,8 +1,8 @@
-import Link from "next/link"
+import Link from "next/link";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import { TerminalIcon } from "lucide-react"
+import { TerminalIcon } from "lucide-react";
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -18,5 +18,5 @@ export function Logo({ className }: { className?: string }) {
         Devct <span className="text-muted-foreground">Shop</span>
       </span>
     </Link>
-  )
+  );
 }

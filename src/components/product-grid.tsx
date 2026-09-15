@@ -1,15 +1,15 @@
-import { ProductCard } from "@/components/product-card"
-import { ProductFilters } from "@/components/product-filters"
-import { Pagination } from "@/components/pagination"
-import { queryCatalog, type CatalogQuery } from "@/lib/products"
+import { ProductCard } from "@/components/product-card";
+import { ProductFilters } from "@/components/product-filters";
+import { Pagination } from "@/components/pagination";
+import { queryCatalog, type CatalogQuery } from "@/lib/products";
 
 type ProductGridProps = {
-  query: CatalogQuery
-  lockCategory?: boolean
-}
+  query: CatalogQuery;
+  lockCategory?: boolean;
+};
 
 export function ProductGrid({ query, lockCategory = false }: ProductGridProps) {
-  const result = queryCatalog(query)
+  const result = queryCatalog(query);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
@@ -29,10 +29,12 @@ export function ProductGrid({ query, lockCategory = false }: ProductGridProps) {
 
       {result.items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-24 text-center">
-          <p className="font-heading text-lg font-semibold">No products found</p>
+          <p className="font-heading text-lg font-semibold">
+            No products found
+          </p>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Try a different search term or category, or clear the filters to
-            see the full catalog.
+            Try a different search term or category, or clear the filters to see
+            the full catalog.
           </p>
         </div>
       ) : (
@@ -49,5 +51,5 @@ export function ProductGrid({ query, lockCategory = false }: ProductGridProps) {
         totalPages={result.totalPages}
       />
     </div>
-  )
+  );
 }

@@ -20,10 +20,8 @@ export async function CustomerShell({
         <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight">{title}</h1>
         {description ? <p className="mt-2 text-muted-foreground">{description}</p> : null}
       </div>
-      <div className="grid gap-8 lg:grid-cols-[210px_1fr] lg:items-start">
-        <CustomerNav active={active} />
-        <main className="min-w-0">{children}</main>
-      </div>
+      <CustomerNav active={active} />
+      <main className="mt-8 min-w-0">{children}</main>
     </div>
   )
 }

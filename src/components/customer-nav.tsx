@@ -1,4 +1,7 @@
-import Link from "next/link"
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   DownloadIcon,
   HeartIcon,
@@ -6,34 +9,45 @@ import {
   ListOrderedIcon,
   Settings2Icon,
   UserRoundIcon,
-} from "lucide-react"
+} from "lucide-react";
 
 const links = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboardIcon },
-  { href: "/dashboard/orders", label: "My orders", icon: ListOrderedIcon },
-  { href: "/dashboard/downloads", label: "My downloads", icon: DownloadIcon },
-  { href: "/dashboard/wishlist", label: "Wishlist", icon: HeartIcon },
-  { href: "/account", label: "Profile", icon: UserRoundIcon },
+  { href: "/account", label: "Overview", icon: LayoutDashboardIcon },
+  { href: "/account/orders", label: "My orders", icon: ListOrderedIcon },
+  { href: "/account/downloads", label: "My downloads", icon: DownloadIcon },
+  { href: "/account/wishlist", label: "Wishlist", icon: HeartIcon },
+  { href: "/account/profile", label: "Profile", icon: UserRoundIcon },
   { href: "/account/settings", label: "Account settings", icon: Settings2Icon },
-]
+];
 
 export function CustomerNav({ active }: { active?: string }) {
+  const pathname = usePathname();
+  const currentPath = pathname || active || "/account";
+
   return (
-    <nav className="flex gap-1 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
+    <nav
+      className="-mx-1 flex overflow-x-auto border-b border-border px-1 pb-px"
+      aria-label="Account navigation"
+    >
       {links.map((link) => {
-        const Icon = link.icon
-        const selected = active === link.href
+        const Icon = link.icon;
+        const selected =
+          currentPath === link.href ||
+          (link.href !== "/account" &&
+            link.href !== "/account/profile" &&
+            currentPath.startsWith(`${link.href}/`));
         return (
           <Link
             key={link.href}
             href={link.href}
-            className={`inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${selected ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+            aria-current={selected ? "page" : undefined}
+            className={`relative inline-flex min-h-10 shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 text-sm font-medium transition-colors ${selected ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"}`}
           >
-            <Icon className="size-4" />
+            <Icon className="size-3.5" />
             {link.label}
           </Link>
-        )
+        );
       })}
     </nav>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-import { RatingStars } from "@/components/rating-stars"
-import { getSampleReviews, type Review } from "@/lib/reviews"
-import type { Product } from "@/lib/products"
+import { RatingStars } from "@/components/rating-stars";
+import { getSampleReviews, type Review } from "@/lib/reviews";
+import type { Product } from "@/lib/products";
 
 export function ReviewsList({ product }: { product: Product }) {
-  const reviews: Review[] = getSampleReviews(product, 4)
+  const reviews: Review[] = getSampleReviews(product, 4);
 
   return (
     <div className="grid gap-6 sm:grid-cols-2">
@@ -34,5 +34,5 @@ export function ReviewsList({ product }: { product: Product }) {
         </article>
       ))}
     </div>
-  )
+  );
 }

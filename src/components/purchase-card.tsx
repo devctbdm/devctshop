@@ -1,32 +1,39 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { AddToCartButton } from "@/components/add-to-cart-button"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { AddToCartButton } from "@/components/add-to-cart-button";
+import { useRouter } from "next/navigation";
 import {
   CheckIcon,
   DownloadIcon,
   ShieldCheckIcon,
   ZapIcon,
-} from "lucide-react"
-import { useCartStore } from "@/stores/cart-store"
-import { discountPercent, formatPrice, type Product } from "@/lib/products"
+} from "lucide-react";
+import { useCartStore } from "@/stores/cart-store";
+import { discountPercent, formatPrice, type Product } from "@/lib/products";
 
 export function PurchaseCard({ product }: { product: Product }) {
-  const router = useRouter()
-  const addItem = useCartStore((state) => state.addItem)
-  const discount = discountPercent(product)
-  const onSale = product.salePrice != null
-  const price = product.salePrice ?? product.price
-  const isFree = product.productType === "FREE" || (product.productType === undefined && product.price === 0)
+  const router = useRouter();
+  const addItem = useCartStore((state) => state.addItem);
+  const discount = discountPercent(product);
+  const onSale = product.salePrice != null;
+  const price = product.salePrice ?? product.price;
+  const isFree =
+    product.productType === "FREE" ||
+    (product.productType === undefined && product.price === 0);
 
   function buy() {
-    addItem({ slug: product.slug, name: product.name, price: product.price, salePrice: product.salePrice })
-    const items = encodeURIComponent(JSON.stringify([{ slug: product.slug }]))
-    router.push(`/checkout?items=${items}`)
+    addItem({
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      salePrice: product.salePrice,
+    });
+    const items = encodeURIComponent(JSON.stringify([{ slug: product.slug }]));
+    router.push(`/checkout?items=${items}`);
   }
 
   return (
@@ -53,15 +60,26 @@ export function PurchaseCard({ product }: { product: Product }) {
       </p>
 
       <div className="mt-5 flex flex-col gap-2.5">
-        {isFree ? <FreeDownloadButton productSlug={product.slug} /> : <Button size="lg" onClick={buy} className="w-full">
-          <ZapIcon className="size-4" data-icon="inline-start" />
-          Buy now
-        </Button>}
-        {!isFree ? <AddToCartButton
-          item={{ slug: product.slug, name: product.name, price: product.price, salePrice: product.salePrice }}
-          size="lg"
-          className="w-full"
-        /> : null}
+        {isFree ? (
+          <FreeDownloadButton productSlug={product.slug} />
+        ) : (
+          <Button size="lg" onClick={buy} className="w-full">
+            <ZapIcon className="size-4" data-icon="inline-start" />
+            Buy now
+          </Button>
+        )}
+        {!isFree ? (
+          <AddToCartButton
+            item={{
+              slug: product.slug,
+              name: product.name,
+              price: product.price,
+              salePrice: product.salePrice,
+            }}
+            size="lg"
+            className="w-full"
+          />
+        ) : null}
       </div>
 
       <Separator className="my-5" />
@@ -81,11 +99,32 @@ export function PurchaseCard({ product }: { product: Product }) {
         </li>
       </ul>
     </div>
-  )
+  );
 }
 
 function FreeDownloadButton({ productSlug }: { productSlug: string }) {
-  const [loading, setLoading] = React.useState(false)
-  const router = useRouter()
-  return <Button type="button" size="lg" className="w-full" disabled={loading} onClick={async () => { setLoading(true); const response = await fetch("/api/downloads/free", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ slug: productSlug }) }); const result = await response.json(); if (response.ok) router.push(`/api/downloads/${result.downloadId}`); else setLoading(false) }}><DownloadIcon className="size-4" />{loading ? "Preparing…" : "Download free"}</Button>
+  const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
+  return (
+    <Button
+      type="button"
+      size="lg"
+      className="w-full"
+      disabled={loading}
+      onClick={async () => {
+        setLoading(true);
+        const response = await fetch("/api/downloads/free", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ slug: productSlug }),
+        });
+        const result = await response.json();
+        if (response.ok) router.push(`/api/downloads/${result.downloadId}`);
+        else setLoading(false);
+      }}
+    >
+      <DownloadIcon className="size-4" />
+      {loading ? "Preparing…" : "Download free"}
+    </Button>
+  );
 }

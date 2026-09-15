@@ -12,6 +12,10 @@ export type PublicUser = {
   role: "USER" | "ADMIN"
   isEmailVerified: boolean
   avatarUrl: string | null
+  avatarPublicId: string | null
+  avatarWidth: number | null
+  avatarHeight: number | null
+  avatarFormat: string | null
   isActive: boolean
   createdAt: Date
 }
@@ -42,6 +46,10 @@ export function toPublicUser(row: UserRow): PublicUser {
     role: row.role as "USER" | "ADMIN",
     isEmailVerified: row.isEmailVerified,
     avatarUrl: row.avatarUrl,
+    avatarPublicId: row.avatarPublicId,
+    avatarWidth: row.avatarWidth,
+    avatarHeight: row.avatarHeight,
+    avatarFormat: row.avatarFormat,
     isActive: row.isActive,
     createdAt: row.createdAt,
   }

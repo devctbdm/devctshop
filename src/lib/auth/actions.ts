@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/db";
-import { passwordResetTokens, users } from "@/db/schema";
+import { passwordResetTokens, userPreferences, users } from "@/db/schema";
 import { emailEnabled } from "@/lib/email/sender";
 import {
   createCustomer,
@@ -239,12 +239,15 @@ async function updatePasswordAction(
   const currentPassword =
     (formData.get("currentPassword") as string | null) ?? "";
   const newPassword = (formData.get("newPassword") as string | null) ?? "";
+  const confirmPassword = (formData.get("confirmPassword") as string | null) ?? "";
 
   const fields: FieldErrors = {};
   if (!currentPassword)
     fields.currentPassword = ["Enter your current password."];
   if (newPassword.length < 8)
     fields.newPassword = ["Password must be at least 8 characters."];
+  if (newPassword !== confirmPassword)
+    fields.confirmPassword = ["Passwords do not match."];
   if (Object.keys(fields).length > 0) return { ok: false, fields };
 
   const valid = user.passwordHash
@@ -267,6 +270,26 @@ async function updatePasswordAction(
   return { ok: true };
 }
 
+async function updateNotificationPreferencesAction(formData: FormData) {
+  const session = await auth()
+  const userId = session?.user?.id
+  if (!userId) return { ok: false, error: "unauthorized" as const }
+
+  const value = (name: string) => formData.get(name) === "on"
+  await db.insert(userPreferences).values({ userId, orderNotifications: value("orderNotifications"), downloadNotifications: value("downloadNotifications"), productUpdates: value("productUpdates"), emailNotifications: value("emailNotifications"), updatedAt: new Date() }).onConflictDoUpdate({ target: userPreferences.userId, set: { orderNotifications: value("orderNotifications"), downloadNotifications: value("downloadNotifications"), productUpdates: value("productUpdates"), emailNotifications: value("emailNotifications"), updatedAt: new Date() } })
+  return { ok: true }
+}
+
+async function deleteAccountAction() {
+  const session = await auth()
+  const userId = session?.user?.id
+  if (!userId) return { ok: false, error: "unauthorized" as const }
+
+  const anonymizedEmail = `deleted-${userId}@deleted.devct.shop`
+  await db.update(users).set({ email: anonymizedEmail, fullName: "Deleted account", passwordHash: null, avatarUrl: null, avatarPublicId: null, isActive: false, updatedAt: new Date() }).where(eq(users.id, userId))
+  await signOut({ redirectTo: "/" })
+}
+
 async function logoutAction(): Promise<void> {
   await signOut({ redirectTo: "/" });
 }
@@ -278,5 +301,7 @@ export {
   resetPasswordAction,
   updateProfileAction,
   updatePasswordAction,
+  updateNotificationPreferencesAction,
+  deleteAccountAction,
   logoutAction,
 };
