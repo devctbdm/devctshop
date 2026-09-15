@@ -12,8 +12,8 @@ import {
 
 import { ProductCover } from "@/components/product-cover";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/products";
 import type { Product } from "@/lib/products";
+import { formatCurrency, type Currency } from "@/lib/currency";
 
 type Quote = {
   subtotalCents: number;
@@ -23,6 +23,8 @@ type Quote = {
   couponError?: string;
   ownedSlugs: string[];
   itemSlugs: string[];
+  currency?: "USD" | "BDT";
+  exchangeRate?: number;
 };
 
 function paymentErrorMessage(error: string) {
@@ -59,6 +61,12 @@ export function CheckoutContent({
   const [quote, setQuote] = React.useState(initialQuote);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [currency, setCurrency] = React.useState<Currency>(initialQuote.currency ?? "USD");
+
+  function changeCurrency(value: Currency) {
+    setCurrency(value)
+    setQuote((current) => ({ ...current, currency: value }))
+  }
 
   async function refreshQuote() {
     setLoading(true);
@@ -70,6 +78,7 @@ export function CheckoutContent({
         body: JSON.stringify({
           items: items.map((item) => ({ slug: item.slug })),
           couponCode,
+          currency,
         }),
       });
       const result = await response.json();
@@ -97,6 +106,7 @@ export function CheckoutContent({
         body: JSON.stringify({
           items: items.map((item) => ({ slug: item.slug })),
           couponCode,
+          currency,
         }),
       });
       const result = await response.json();
@@ -186,7 +196,7 @@ export function CheckoutContent({
                   </p>
                 </div>
                 <span className="text-sm font-medium">
-                  {formatPrice(item.salePrice ?? item.price)}
+                  {formatCurrency(Math.round((item.salePrice ?? item.price) * 100) * (currency === "BDT" ? (quote.exchangeRate ?? 120) : 1), currency)}
                 </span>
               </div>
             ))}
@@ -200,20 +210,21 @@ export function CheckoutContent({
       </div>
 
       <aside className="rounded-xl border bg-card p-5 lg:sticky lg:top-20">
-        <h2 className="font-heading text-lg font-semibold">Order summary</h2>
+         <div className="flex items-center justify-between gap-3"><h2 className="font-heading text-lg font-semibold">Order summary</h2><select aria-label="Checkout currency" value={currency} onChange={(event) => changeCurrency(event.target.value as Currency)} className="h-8 rounded-lg border border-input bg-background px-2 text-xs font-medium"><option value="USD">USD $</option><option value="BDT">BDT ৳</option></select></div>
+         {currency === "BDT" && quote.exchangeRate ? <p className="mt-2 text-xs text-muted-foreground">1 USD = {quote.exchangeRate} BDT</p> : null}
         <div className="mt-5 space-y-2 text-sm">
           <div className="flex justify-between text-muted-foreground">
             <span>Subtotal</span>
-            <span>{formatPrice(quote.subtotalCents / 100)}</span>
+             <span>{formatCurrency(quote.subtotalCents, currency)}</span>
           </div>
           <div className="flex justify-between text-muted-foreground">
             <span>Discount</span>
-            <span>-{formatPrice(quote.discountCents / 100)}</span>
+             <span>-{formatCurrency(quote.discountCents, currency)}</span>
           </div>
           <div className="mt-3 flex justify-between border-t pt-3 font-heading font-semibold">
             <span>Total</span>
             <span className="text-xl">
-              {formatPrice(quote.totalCents / 100)}
+               {formatCurrency(quote.totalCents, currency)}
             </span>
           </div>
         </div>

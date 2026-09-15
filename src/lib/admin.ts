@@ -2,7 +2,7 @@ import "server-only"
 
 import { count, desc, eq, ilike, sql } from "drizzle-orm"
 import { db } from "@/db"
-import { categories, downloads, orderItems, orders, payments, productFiles, productImages, products, reviews, users } from "@/db/schema"
+import { categories, coupons, downloads, orderItems, orders, payments, productFiles, productImages, products, reviews, users } from "@/db/schema"
 
 export async function getAdminMetrics() {
   const [[revenue], [orderCount], [userCount], [downloadCount], [reviewCount]] = await Promise.all([
@@ -62,4 +62,13 @@ export async function getAdminOrder(orderNumber: string) {
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, row.order.id))
   const customer = row.order.userId ? (await db.select().from(users).where(eq(users.id, row.order.userId)).limit(1))[0] : null
   return { ...row, items, customer: customer ?? null }
+}
+
+export async function getAdminCoupons(search?: string) {
+  return db.select().from(coupons).where(search ? ilike(coupons.code, `%${search.toUpperCase()}%`) : undefined).orderBy(desc(coupons.createdAt)).limit(200)
+}
+
+export async function getAdminCoupon(id: string) {
+  const [coupon] = await db.select().from(coupons).where(eq(coupons.id, id)).limit(1)
+  return coupon ?? null
 }

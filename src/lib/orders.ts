@@ -1,10 +1,13 @@
 import "server-only"
 
-import { and, eq, inArray } from "drizzle-orm"
+import { and, count, eq, inArray } from "drizzle-orm"
 
 import { db } from "@/db"
 import { coupons, orderItems, orders } from "@/db/schema"
-import { getProductBySlug, type Product } from "@/lib/products"
+import type { Product } from "@/lib/products"
+import { getDatabaseProductBySlug } from "@/lib/catalog"
+import { convertUsdCents, isCurrency, type Currency } from "@/lib/currency"
+import { getCurrencySettings } from "@/lib/currency-server"
 
 export type OrderLineInput = { slug: string }
 
@@ -17,6 +20,9 @@ export type OrderCalculation = {
   couponId: string | null
   couponCode: string | null
   couponError?: "invalid_coupon" | "expired_coupon" | "coupon_not_applicable"
+  currency: Currency
+  exchangeRate: number
+  baseSubtotalCents: number
 }
 
 function cents(value: number) {
@@ -59,19 +65,22 @@ export async function calculateOrder(
   lineInputs: OrderLineInput[],
   userId?: string,
   couponCode?: string,
+  currency: Currency = "USD",
 ): Promise<OrderCalculation> {
+  const currencySettings = await getCurrencySettings()
+  const requestedCurrency = isCurrency(currency) && currencySettings.supportedCurrencies.includes(currency) ? currency : currencySettings.defaultCurrency
   const uniqueSlugs = [...new Set(lineInputs.map((line) => line.slug))]
-  const products = uniqueSlugs
-    .map((slug) => getProductBySlug(slug))
-    .filter((product): product is Product => Boolean(product && product.published))
+  const products = (await Promise.all(uniqueSlugs.map(getDatabaseProductBySlug))).filter((product): product is Product => Boolean(product))
 
   const owned = userId ? await getOwnedProductSlugs(userId, products.map((product) => product.slug)) : new Set<string>()
   const items = products.filter((product) => !owned.has(product.slug))
   const ownedSlugs = products.filter((product) => owned.has(product.slug)).map((product) => product.slug)
-  const subtotalCents = items.reduce((sum, product) => sum + productPrice(product), 0)
+  const subtotalCents = items.reduce((sum, product) => sum + convertUsdCents(productPrice(product), requestedCurrency, currencySettings.usdToBdtRate), 0)
+  const baseSubtotalCents = items.reduce((sum, product) => sum + productPrice(product), 0)
+  const withMeta = <T extends Omit<OrderCalculation, "currency" | "exchangeRate" | "baseSubtotalCents">>(value: T): OrderCalculation => ({ ...value, currency: requestedCurrency, exchangeRate: currencySettings.usdToBdtRate, baseSubtotalCents })
 
   if (!couponCode?.trim()) {
-    return {
+    return withMeta({
       items,
       ownedSlugs,
       subtotalCents,
@@ -79,12 +88,12 @@ export async function calculateOrder(
       totalCents: subtotalCents,
       couponId: null,
       couponCode: null,
-    }
+    })
   }
 
   const coupon = await findCoupon(couponCode)
   if (!coupon) {
-    return {
+    return withMeta({
       items,
       ownedSlugs,
       subtotalCents,
@@ -93,7 +102,7 @@ export async function calculateOrder(
       couponId: null,
       couponCode: null,
       couponError: "invalid_coupon",
-    }
+    })
   }
 
   const now = new Date()
@@ -103,7 +112,7 @@ export async function calculateOrder(
     (coupon.validUntil && coupon.validUntil < now) ||
     (coupon.usageLimit !== null && coupon.usageCount >= coupon.usageLimit)
   ) {
-    return {
+    return withMeta({
       items,
       ownedSlugs,
       subtotalCents,
@@ -112,11 +121,30 @@ export async function calculateOrder(
       couponId: null,
       couponCode: null,
       couponError: "expired_coupon",
+    })
+  }
+
+  if (userId && coupon.perUserLimit !== null) {
+    const [usage] = await db
+      .select({ value: count() })
+      .from(orders)
+      .where(and(eq(orders.userId, userId), eq(orders.couponId, coupon.id), eq(orders.status, "paid")))
+    if (Number(usage.value) >= coupon.perUserLimit) {
+      return withMeta({
+        items,
+        ownedSlugs,
+        subtotalCents,
+        discountCents: 0,
+        totalCents: subtotalCents,
+        couponId: null,
+        couponCode: null,
+        couponError: "coupon_not_applicable",
+      })
     }
   }
 
   if (subtotalCents < coupon.minOrderCents) {
-    return {
+    return withMeta({
       items,
       ownedSlugs,
       subtotalCents,
@@ -125,7 +153,7 @@ export async function calculateOrder(
       couponId: null,
       couponCode: null,
       couponError: "coupon_not_applicable",
-    }
+    })
   }
 
   const rawDiscount =
@@ -137,7 +165,7 @@ export async function calculateOrder(
     coupon.maxDiscountCents ? Math.min(rawDiscount, coupon.maxDiscountCents) : rawDiscount,
   )
 
-  return {
+  return withMeta({
     items,
     ownedSlugs,
     subtotalCents,
@@ -145,7 +173,7 @@ export async function calculateOrder(
     totalCents: subtotalCents - discountCents,
     couponId: coupon.id,
     couponCode: coupon.code,
-  }
+  })
 }
 
 function orderNumber() {
@@ -159,14 +187,16 @@ export async function createPendingOrder({
   fullName,
   lines,
   couponCode,
+  currency = "USD",
 }: {
   userId: string
   email: string
   fullName: string
   lines: OrderLineInput[]
   couponCode?: string
+  currency?: Currency
 }) {
-  const calculation = await calculateOrder(lines, userId, couponCode)
+  const calculation = await calculateOrder(lines, userId, couponCode, currency)
   if (calculation.couponError) throw new Error(calculation.couponError)
   if (!calculation.items.length) throw new Error("empty_order")
 
@@ -181,6 +211,10 @@ export async function createPendingOrder({
         discountCents: calculation.discountCents,
         couponId: calculation.couponId,
         totalCents: calculation.totalCents,
+        baseAmountCents: calculation.baseSubtotalCents,
+        baseCurrency: "USD",
+        exchangeRate: String(calculation.exchangeRate),
+        currency: calculation.currency,
         billingEmail: email,
         billingName: fullName,
       })

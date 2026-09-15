@@ -1,11 +1,11 @@
 import "server-only"
 
-import { and, eq } from "drizzle-orm"
+import { and, eq, sql } from "drizzle-orm"
 
 import { db } from "@/db"
-import { downloads, orderItems, orders, payments } from "@/db/schema"
+import { coupons, downloads, orderItems, orders, payments } from "@/db/schema"
 import { validateSslcommerzPayment } from "@/lib/sslcommerz"
-import { getProductBySlug } from "@/lib/products"
+import { getDatabaseProductBySlug } from "@/lib/catalog"
 
 type GatewayData = Record<string, string | undefined>
 
@@ -28,12 +28,14 @@ export async function recordPaymentAttempt({
   orderId,
   userId,
   amountCents,
+  currency = "USD",
   sessionKey,
   rawResponse,
 }: {
   orderId: string
   userId: string
   amountCents: number
+  currency?: "USD" | "BDT"
   sessionKey?: string
   rawResponse?: GatewayData
 }) {
@@ -45,7 +47,7 @@ export async function recordPaymentAttempt({
       gateway: "sslcommerz",
       status: "pending",
       amountCents,
-      currency: "USD",
+      currency,
       sessionKey: sessionKey ?? null,
       rawResponse: rawResponse ?? null,
     })
@@ -78,7 +80,7 @@ export async function processSslcommerzPayment(data: GatewayData) {
   const valid =
     (validated.status === "VALID" || validated.status === "VALIDATED") &&
     validated.tran_id === orderNumber &&
-    validated.currency_type === "USD" &&
+    validated.currency_type === current.order.currency &&
     amountMatches(validated.currency_amount, current.order.totalCents) &&
     amountMatches(data.currency_amount, current.order.totalCents)
 
@@ -129,15 +131,27 @@ export async function processSslcommerzPayment(data: GatewayData) {
       .where(and(eq(orders.id, locked.order.id), eq(orders.status, "pending")))
       .returning()
 
+    if (order?.couponId) {
+      await tx
+        .update(coupons)
+        .set({ usageCount: sql`${coupons.usageCount} + 1`, updatedAt: now })
+        .where(eq(coupons.id, order.couponId))
+    }
+
     const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, locked.order.id))
     if (order) {
+      const versions = new Map<string, string>()
+      await Promise.all(items.map(async (item) => {
+        const product = await getDatabaseProductBySlug(item.productSlug ?? "")
+        if (item.productSlug) versions.set(item.productSlug, product?.version ?? "1.0.0")
+      }))
       await tx
         .insert(downloads)
         .values(items.map((item) => ({
           orderId: order.id,
           userId: order.userId,
           productSlug: item.productSlug ?? "",
-          productVersion: getProductBySlug(item.productSlug ?? "")?.version ?? "1.0.0",
+          productVersion: versions.get(item.productSlug ?? "") ?? "1.0.0",
           productFileId: null,
         })))
         .onConflictDoNothing({

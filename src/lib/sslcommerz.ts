@@ -55,12 +55,14 @@ export async function initializeSslcommerzPayment({
   email,
   name,
   productNames,
+  currency = "USD",
 }: {
   orderNumber: string
   amountCents: number
   email: string
   name: string
   productNames: string[]
+  currency?: "USD" | "BDT"
 }) {
   if (!hasPublicCallbackOrigin()) throw new Error("sslcommerz_public_callback_url_required")
 
@@ -68,7 +70,7 @@ export async function initializeSslcommerzPayment({
     store_id: required("SSLCOMMERZ_STORE_ID"),
     store_passwd: required("SSLCOMMERZ_STORE_PASSWORD"),
     total_amount: (amountCents / 100).toFixed(2),
-    currency: "USD",
+    currency,
     tran_id: orderNumber,
     success_url: `${publicOrigin()}/api/payments/sslcommerz/success`,
     fail_url: `${publicOrigin()}/api/payments/sslcommerz/fail`,

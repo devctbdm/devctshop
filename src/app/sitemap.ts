@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next"
 
-import { categories, products } from "@/lib/products"
+import { getActiveCategories, getPublishedDatabaseProducts } from "@/lib/catalog"
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://devct.shop"
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
+  const [categories, products] = await Promise.all([getActiveCategories(), getPublishedDatabaseProducts()])
   return [
     { url: siteUrl, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${siteUrl}/products`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
@@ -16,9 +17,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),
-    ...products.filter((product) => product.published).map((product) => ({
+    ...products.map(({ product }) => ({
       url: `${siteUrl}/products/${product.slug}`,
-      lastModified: new Date(product.updatedAt),
+      lastModified: product.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),

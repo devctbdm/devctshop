@@ -4,7 +4,7 @@ import { and, desc, eq } from "drizzle-orm"
 
 import { db } from "@/db"
 import { downloads, orderItems, orders, payments, wishlist } from "@/db/schema"
-import { getProductBySlug } from "@/lib/products"
+import { getDatabaseProductBySlug } from "@/lib/catalog"
 
 export async function getCustomerOrders(userId: string) {
   return db
@@ -49,10 +49,7 @@ export async function getCustomerDownloads(userId: string) {
     .where(eq(downloads.userId, userId))
     .orderBy(desc(downloads.createdAt))
 
-  return rows.map((download) => ({
-    ...download,
-    product: getProductBySlug(download.productSlug),
-  }))
+  return Promise.all(rows.map(async (download) => ({ ...download, product: await getDatabaseProductBySlug(download.productSlug) })))
 }
 
 export async function getCustomerWishlist(userId: string) {
@@ -62,7 +59,7 @@ export async function getCustomerWishlist(userId: string) {
     .where(eq(wishlist.userId, userId))
     .orderBy(desc(wishlist.createdAt))
 
-  return rows
-    .map((item) => ({ ...item, product: item.productSlug ? getProductBySlug(item.productSlug) : undefined }))
+  const mapped = await Promise.all(rows.map(async (item) => ({ ...item, product: item.productSlug ? await getDatabaseProductBySlug(item.productSlug) : undefined })))
+  return mapped
     .filter((item) => item.product)
 }

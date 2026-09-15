@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ProductCard } from "@/components/product-card";
-import { categories, getFeaturedProducts } from "@/lib/products";
+import { getPublishedDatabaseProducts, getActiveCategories, mapDbProduct } from "@/lib/catalog";
 
 const stats = [
   { value: "480+", label: "Products" },
@@ -108,7 +108,8 @@ function Hero() {
   );
 }
 
-function Categories() {
+async function Categories() {
+  const categories = await getActiveCategories();
   return (
     <section id="categories" className="scroll-mt-16">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
@@ -122,14 +123,14 @@ function Categories() {
           </p>
         </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((category) => (
+            {categories.map((category) => (
             <a
-              key={category.slug}
+              key={category.id}
               href={`/categories/${category.slug}`}
               className="group flex items-start gap-4 rounded-xl border bg-card p-4 shadow-2xs transition-all hover:border-foreground/20 hover:shadow-md dark:hover:border-white/20"
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                <category.icon className="size-5" />
+                <span className="size-5" aria-hidden />
               </span>
               <span className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold">{category.name}</span>
@@ -145,7 +146,8 @@ function Categories() {
   );
 }
 
-function FeaturedProducts() {
+async function FeaturedProducts() {
+  const products = (await getPublishedDatabaseProducts()).map(mapDbProduct).filter((product) => product.featured).slice(0, 4)
   return (
     <section id="featured" className="scroll-mt-16 border-y bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
@@ -170,7 +172,7 @@ function FeaturedProducts() {
           </Button>
         </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {getFeaturedProducts(4).map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.slug} product={product} />
           ))}
         </div>

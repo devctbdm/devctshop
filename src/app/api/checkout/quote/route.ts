@@ -5,7 +5,7 @@ import { calculateOrder } from "@/lib/orders"
 
 export async function POST(request: Request) {
   const session = await auth()
-  let body: { items?: { slug?: string }[]; couponCode?: string }
+  let body: { items?: { slug?: string }[]; couponCode?: string; currency?: string }
 
   try {
     body = await request.json()
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const lines = Array.isArray(body.items)
     ? body.items.filter((item): item is { slug: string } => typeof item?.slug === "string")
     : []
-  const quote = await calculateOrder(lines, session?.user?.id, body.couponCode)
+  const quote = await calculateOrder(lines, session?.user?.id, body.couponCode, body.currency === "BDT" ? "BDT" : "USD")
 
   return NextResponse.json({
     subtotalCents: quote.subtotalCents,
@@ -26,5 +26,7 @@ export async function POST(request: Request) {
     couponError: quote.couponError,
     ownedSlugs: quote.ownedSlugs,
     itemSlugs: quote.items.map((item) => item.slug),
+    currency: quote.currency,
+    exchangeRate: quote.exchangeRate,
   })
 }

@@ -7,7 +7,7 @@ import { recordPaymentAttempt, updatePaymentSession } from "@/lib/payment-servic
 
 export async function POST(request: Request) {
   const user = await requireUser()
-  let body: { items?: { slug?: string }[]; couponCode?: string }
+  let body: { items?: { slug?: string }[]; couponCode?: string; currency?: string }
 
   try {
     body = await request.json()
@@ -26,11 +26,13 @@ export async function POST(request: Request) {
       fullName: user.fullName,
       lines,
       couponCode: body.couponCode,
+      currency: body.currency === "BDT" ? "BDT" : "USD",
     })
     await recordPaymentAttempt({
       orderId: order.id,
       userId: user.id,
       amountCents: order.totalCents,
+      currency: order.calculation.currency,
     })
     const session = await initializeSslcommerzPayment({
       orderNumber: order.orderNumber,
@@ -38,6 +40,7 @@ export async function POST(request: Request) {
       email: user.email,
       name: user.fullName,
       productNames: order.calculation.items.map((item) => item.name),
+      currency: order.calculation.currency,
     })
 
     if (session.sessionkey) await updatePaymentSession(order.id, session.sessionkey)

@@ -1,8 +1,16 @@
-import { TicketPercentIcon } from "lucide-react"
-import { AdminHeader } from "@/components/admin/admin-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { PlusIcon } from "lucide-react"
 
-export default function AdminCouponsPage() {
-  return <div className="mx-auto max-w-7xl"><AdminHeader title="Coupons" description="Manage promotions and discount codes." /><Card><CardContent className="flex min-h-56 flex-col items-center justify-center text-center"><span className="flex size-11 items-center justify-center rounded-xl bg-muted"><TicketPercentIcon className="size-5 text-muted-foreground" /></span><h2 className="mt-4 font-heading text-lg font-semibold">Coupon management is ready for data</h2><p className="mt-1 max-w-md text-sm text-muted-foreground">The coupon schema and checkout validation are already connected. Add coupon CRUD here when promotions are ready to be managed from the console.</p><Button className="mt-4" variant="outline" disabled>Create coupon</Button></CardContent></Card></div>
+import { AdminHeader } from "@/components/admin/admin-header"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { getAdminCoupons } from "@/lib/admin"
+import { deleteCouponAction, toggleCouponAction } from "@/lib/admin-actions"
+import { ConfirmAction } from "@/components/admin/confirm-action"
+import { formatPrice } from "@/lib/products"
+
+export default async function AdminCouponsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const { q } = await searchParams
+  const coupons = await getAdminCoupons(q)
+  return <div className="mx-auto max-w-7xl"><AdminHeader title="Coupons" description="Create, schedule, and monitor discount codes." search={q} /><div className="mb-5 flex justify-end"><Button nativeButton={false} render={<Link href="/admin/coupons/new" />}><PlusIcon className="size-4" />Create coupon</Button></div><div className="rounded-xl border bg-card"><Table><TableHeader><TableRow><TableHead>Code</TableHead><TableHead>Discount</TableHead><TableHead>Validity</TableHead><TableHead>Usage</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader><TableBody>{coupons.map((coupon) => <TableRow key={coupon.id}><TableCell><Link href={`/admin/coupons/${coupon.id}`} className="font-mono font-semibold hover:underline">{coupon.code}</Link><p className="max-w-48 truncate text-xs text-muted-foreground">{coupon.description ?? "No description"}</p></TableCell><TableCell>{coupon.discountType === "percent" ? `${coupon.discountValue}%` : formatPrice(coupon.discountValue / 100)}<p className="text-xs text-muted-foreground">Min {formatPrice(coupon.minOrderCents / 100)}</p></TableCell><TableCell className="text-xs text-muted-foreground">{coupon.validFrom.toLocaleDateString()}{coupon.validUntil ? ` – ${coupon.validUntil.toLocaleDateString()}` : " onward"}</TableCell><TableCell>{coupon.usageCount}{coupon.usageLimit ? ` / ${coupon.usageLimit}` : " / ∞"}<p className="text-xs text-muted-foreground">{coupon.perUserLimit} per user</p></TableCell><TableCell><form action={toggleCouponAction}><input type="hidden" name="id" value={coupon.id} /><input type="hidden" name="status" value={coupon.status === "active" ? "disabled" : "active"} /><Button size="sm" type="submit" variant={coupon.status === "active" ? "secondary" : "outline"}>{coupon.status === "active" ? "Active" : coupon.status}</Button></form></TableCell><TableCell><div className="flex justify-end gap-2"><Button nativeButton={false} size="sm" variant="outline" render={<Link href={`/admin/coupons/${coupon.id}`} />}>Edit</Button><ConfirmAction label="Delete" title={`Delete ${coupon.code}?`} description="This permanently removes the coupon. Existing orders are not changed." action={<form action={deleteCouponAction}><input type="hidden" name="id" value={coupon.id} /><Button type="submit" variant="destructive">Delete coupon</Button></form>} /></div></TableCell></TableRow>)}</TableBody></Table>{!coupons.length ? <p className="p-10 text-center text-sm text-muted-foreground">No coupons found.</p> : null}</div></div>
 }

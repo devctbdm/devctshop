@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth/session"
 import { calculateOrder, findPendingOrder } from "@/lib/orders"
 import { CheckoutContent } from "@/components/checkout-content"
+import { isCurrency, type Currency } from "@/lib/currency"
 
 type CheckoutPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -20,10 +21,12 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
   const user = await requireUser()
   const params = await searchParams
   const orderNumber = first(params.order)
+  const rawCurrency = first(params.currency)
+  const currency: Currency = isCurrency(rawCurrency) ? rawCurrency : "USD"
 
   if (orderNumber) {
     const order = await findPendingOrder(user.id, orderNumber)
-    if (order) return <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8"><CheckoutContent items={[]} initialQuote={{ subtotalCents: order.subtotalCents, discountCents: order.discountCents, totalCents: order.totalCents, couponCode: null, ownedSlugs: [], itemSlugs: [] }} orderNumber={order.orderNumber} /></div>
+    if (order) return <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8"><CheckoutContent items={[]} initialQuote={{ subtotalCents: order.totalCents, discountCents: order.discountCents, totalCents: order.totalCents, couponCode: null, ownedSlugs: [], itemSlugs: [], currency: order.currency === "BDT" ? "BDT" : "USD" }} orderNumber={order.orderNumber} /></div>
   }
 
   let items: { slug: string }[] = []
@@ -34,7 +37,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     items = []
   }
 
-  const quote = await calculateOrder(items, user.id, first(params.coupon))
+  const quote = await calculateOrder(items, user.id, first(params.coupon), currency)
   const products = quote.items
 
   return (
@@ -49,6 +52,8 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
           couponError: quote.couponError,
           ownedSlugs: quote.ownedSlugs,
           itemSlugs: products.map((product) => product.slug),
+          currency: quote.currency,
+          exchangeRate: quote.exchangeRate,
         }}
       />
     </div>

@@ -10,11 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  getProductBySlug,
-  getRelatedProducts,
-  type Product,
-} from "@/lib/products";
+import type { Product } from "@/lib/products";
+import { getDatabaseProductBySlug, getRelatedDatabaseProducts } from "@/lib/catalog";
 import {
   ArrowLeftIcon,
   CheckIcon,
@@ -180,7 +177,7 @@ function MetaRow({ product }: { product: Product }) {
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getDatabaseProductBySlug(slug);
   if (!product) return { title: "Product not found — Devct Shop" };
   return {
     title: `${product.name} — Devct Shop`,
@@ -198,10 +195,10 @@ export async function generateMetadata({ params }: ProductPageProps) {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getDatabaseProductBySlug(slug);
   if (!product) notFound();
 
-  const related = getRelatedProducts(product, 4);
+  const related = await getRelatedDatabaseProducts(product, 4);
   const reviews = product.reviews;
 
   return (

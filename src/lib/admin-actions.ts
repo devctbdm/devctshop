@@ -6,7 +6,7 @@ import { redirect } from "next/navigation"
 import { z } from "zod"
 
 import { db } from "@/db"
-import { categories, productFiles, productImages, products, users } from "@/db/schema"
+import { categories, coupons, productFiles, productImages, products, users } from "@/db/schema"
 import { requireAdmin } from "@/lib/auth/session"
 
 const textList = z.string().optional().default("").transform((value) => value.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean))
@@ -197,4 +197,69 @@ export async function updateUserRoleAction(formData: FormData) {
   const role = z.enum(["USER", "ADMIN"]).parse(formData.get("role"))
   await db.update(users).set({ role, updatedAt: new Date() }).where(and(eq(users.id, id), ne(users.id, admin.id)))
   revalidatePath("/admin/customers")
+}
+
+const couponSchema = z.object({
+  code: z.string().trim().min(2).max(40).regex(/^[A-Za-z0-9_-]+$/).transform((value) => value.toUpperCase()),
+  description: z.string().trim().max(255).optional().default(""),
+  discountType: z.enum(["percent", "fixed"]),
+  discountValue: z.coerce.number().int().positive(),
+  maxDiscountCents: z.preprocess((value) => value === "" ? undefined : value, z.coerce.number().int().positive().optional()),
+  minOrderCents: z.coerce.number().int().positive(),
+  usageLimit: z.preprocess((value) => value === "" ? undefined : value, z.coerce.number().int().positive().optional()),
+  perUserLimit: z.coerce.number().int().positive().default(1),
+  status: z.enum(["active", "scheduled", "expired", "disabled"]),
+  validFrom: z.string().min(1),
+  validUntil: z.string().optional(),
+})
+
+function couponData(formData: FormData) {
+  const parsed = couponSchema.parse(Object.fromEntries(formData.entries()))
+  if (parsed.discountType === "percent" && parsed.discountValue > 100) throw new Error("Percent discounts cannot exceed 100.")
+  const validFrom = new Date(parsed.validFrom)
+  const validUntil = parsed.validUntil ? new Date(parsed.validUntil) : null
+  if (Number.isNaN(validFrom.getTime()) || (validUntil && Number.isNaN(validUntil.getTime()))) throw new Error("Invalid coupon date.")
+  if (validUntil && validUntil <= validFrom) throw new Error("Coupon end date must be after its start date.")
+  return { code: parsed.code, description: parsed.description || null, discountType: parsed.discountType, discountValue: parsed.discountType === "percent" ? parsed.discountValue : parsed.discountValue * 100, maxDiscountCents: parsed.maxDiscountCents ?? null, minOrderCents: parsed.minOrderCents, usageLimit: parsed.usageLimit ?? null, perUserLimit: parsed.perUserLimit, status: parsed.status, validFrom, validUntil, updatedAt: new Date() }
+}
+
+export async function createCouponAction(formData: FormData) {
+  await requireAdmin()
+  try {
+    await db.insert(coupons).values(couponData(formData))
+    revalidatePath("/admin/coupons")
+    redirect("/admin/coupons?created=1")
+  } catch (error) {
+    if (error instanceof Error && "digest" in error && String(error.digest).startsWith("NEXT_REDIRECT")) throw error
+    return { ok: false, error: error instanceof Error ? error.message : "Please correct the coupon fields." }
+  }
+}
+
+export async function updateCouponAction(formData: FormData) {
+  await requireAdmin()
+  try {
+    const id = z.string().uuid().parse(formData.get("id"))
+    await db.update(coupons).set(couponData(formData)).where(eq(coupons.id, id))
+    revalidatePath("/admin/coupons")
+    redirect(`/admin/coupons/${id}?updated=1`)
+  } catch (error) {
+    if (error instanceof Error && "digest" in error && String(error.digest).startsWith("NEXT_REDIRECT")) throw error
+    return { ok: false, error: error instanceof Error ? error.message : "Please correct the coupon fields." }
+  }
+}
+
+export async function deleteCouponAction(formData: FormData) {
+  await requireAdmin()
+  const id = z.string().uuid().parse(formData.get("id"))
+  await db.delete(coupons).where(eq(coupons.id, id))
+  revalidatePath("/admin/coupons")
+  redirect("/admin/coupons?deleted=1")
+}
+
+export async function toggleCouponAction(formData: FormData) {
+  await requireAdmin()
+  const id = z.string().uuid().parse(formData.get("id"))
+  const status = z.enum(["active", "disabled"]).parse(formData.get("status"))
+  await db.update(coupons).set({ status, updatedAt: new Date() }).where(eq(coupons.id, id))
+  revalidatePath("/admin/coupons")
 }

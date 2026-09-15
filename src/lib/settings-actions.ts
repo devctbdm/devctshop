@@ -20,6 +20,9 @@ const settingsSchema = z.object({
   githubUrl: optionalUrl,
   youtubeUrl: optionalUrl,
   linkedinUrl: optionalUrl,
+  defaultCurrency: z.enum(["USD", "BDT"]),
+  supportedCurrencies: z.string().transform((value) => value.split(",").filter((item): item is "USD" | "BDT" => item === "USD" || item === "BDT")).pipe(z.array(z.enum(["USD", "BDT"])).min(1)),
+  usdToBdtRate: z.coerce.number().positive().finite(),
 })
 
 export async function updateGeneralSettingsAction(formData: FormData) {

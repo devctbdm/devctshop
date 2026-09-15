@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 import { db } from "@/db"
 import { wishlist } from "@/db/schema"
 import { auth } from "@/lib/auth/auth"
-import { getProductBySlug } from "@/lib/products"
+import { getDatabaseProductBySlug } from "@/lib/catalog"
 
 async function currentUser() {
   const session = await auth()
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const userId = await currentUser()
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 })
   const body = (await request.json()) as { slug?: string }
-  const product = body.slug ? getProductBySlug(body.slug) : undefined
+  const product = body.slug ? await getDatabaseProductBySlug(body.slug) : undefined
   if (!product) return NextResponse.json({ error: "product_not_found" }, { status: 404 })
 
   await db

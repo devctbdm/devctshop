@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { MenuIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
+import { CurrencySelector } from "@/components/currency-selector";
 
 const navigation = [
   { title: "Products", href: "/products" },
@@ -63,6 +64,7 @@ export function SiteHeader({ user }: { user?: HeaderUser | null }) {
             <SearchIcon />
           </Button>
           <ThemeToggle />
+          <CurrencySelector />
           <CartIndicator />
 
           {user ? (

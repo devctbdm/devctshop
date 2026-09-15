@@ -31,6 +31,7 @@ import {
   SidebarTrigger,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { AdminBreadcrumbs } from "@/components/admin/admin-breadcrumbs";
 
 const sections = [
   {
@@ -152,7 +153,7 @@ export function AdminSidebar({
         <header className="flex h-14 items-center gap-3 border-b bg-background px-4">
           <SidebarTrigger />
           <div className="h-4 w-px bg-border" />
-          <span className="text-sm text-muted-foreground">Admin console</span>
+          <AdminBreadcrumbs />
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </SidebarInset>

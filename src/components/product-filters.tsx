@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 
 import {
   buildQueryString,
-  categories,
   sortOptions,
   type CatalogQuery,
 } from "@/lib/products";
@@ -18,11 +17,13 @@ export function ProductFilters({
   category,
   sort,
   lockCategory = false,
+  categories = [],
 }: {
   search?: string;
   category?: string;
   sort?: string;
   lockCategory?: boolean;
+  categories?: { slug: string; name: string }[];
 }) {
   const router = useRouter();
   const pathname = usePathname();

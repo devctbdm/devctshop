@@ -27,7 +27,7 @@ export function ConfirmAction({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
-        render={<Button variant="outline" size="sm" nativeButton={false} />}
+        render={<Button variant="outline" size="sm" nativeButton />}
       >
         {label}
       </DialogTrigger>
